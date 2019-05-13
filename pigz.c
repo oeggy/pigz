@@ -700,19 +700,24 @@ static lock *log_lock = NULL;
 // Maximum log entry length.
 #define MAXMSG 256
 
-// Set up log (call from main thread before other threads launched).
-static void log_init(void) {
-    if (log_tail == NULL) {
-        mem_track.num = 0;
-        mem_track.size = 0;
-        mem_track.max = 0;
+/* ========================================================================
+ * Set up log (call from main thread before other threads launched). 
+ */
+static void
+log_init (void) 
+{
+  if (log_tail == NULL) 
+    {
+      mem_track.num = 0;
+      mem_track.size = 0;
+      mem_track.max = 0;
 #ifndef NOTHREAD
-        mem_track.lock = new_lock(0);
-        yarn_mem(yarn_malloc, yarn_free);
-        log_lock = new_lock(0);
+      mem_track.lock = new_lock (0);
+      yarn_mem (yarn_malloc, yarn_free);
+      log_lock = new_lock (0);
 #endif
-        log_head = NULL;
-        log_tail = &log_head;
+      log_head = NULL;
+      log_tail = &log_head;
     }
 }
 
@@ -1218,27 +1223,34 @@ static unsigned long crc32z(unsigned long crc,
 // Compute check value depending on format.
 #define CHECK(a,b,c) (g.form == 1 ? adler32z(a,b,c) : crc32z(a,b,c))
 
-// Return the zlib version as an integer, where each component is interpreted
-// as a decimal number and converted to four hexadecimal digits. E.g.
-// '1.2.11.1' -> 0x12b1, or return -1 if the string is not a valid version.
-static long zlib_vernum(void) {
-    char const *ver = zlibVersion();
-    long num = 0;
-    int left = 4;
-    int comp = 0;
-    do {
-        if (*ver >= '0' && *ver <= '9')
-            comp = 10 * comp + *ver - '0';
-        else {
-            num = (num << 4) + (comp > 0xf ? 0xf : comp);
-            left--;
-            if (*ver != '.')
-                break;
-            comp = 0;
+/* ========================================================================
+ *  Return the zlib version as an integer, where each component is interpreted
+ *  as a decimal number and converted to four hexadecimal digits. E.g.
+ *  '1.2.11.1' -> 0x12b1, or return -1 if the string is not a valid version.
+ */
+static long 
+zlib_vernum (void) 
+{
+  char const *ver = zlibVersion();
+  long num = 0;
+  int left = 4;
+  int comp = 0;
+  do 
+    {
+      if (*ver >= '0' && *ver <= '9')
+        comp = 10 * comp + *ver - '0';
+      else 
+        {
+          num = (num << 4) + (comp > 0xf ? 0xf : comp);
+          left--;
+          if (*ver != '.')
+            break;
+          comp = 0;
         }
-        ver++;
-    } while (left);
-    return left < 2 ? num << (left << 2) : -1;
+      ver++;
+    } 
+  while (left);
+  return left < 2 ? num << (left << 2) : -1;
 }
 
 #ifndef NOTHREAD
@@ -4050,39 +4062,44 @@ static int nprocs(int n) {
 
 #endif
 
-// Set option defaults.
-static void defaults(void) {
-    g.level = Z_DEFAULT_COMPRESSION;
+/* ========================================================================
+* Set option defaults.
+*/
+static void 
+defaults (void) 
+{
+  g.level = Z_DEFAULT_COMPRESSION;
 #ifndef NOZOPFLI
-    // default zopfli options as set by ZopfliInitOptions():
-    //  verbose = 0
-    //  numiterations = 15
-    //  blocksplitting = 1
-    //  blocksplittinglast = 0
-    //  blocksplittingmax = 15
-    ZopfliInitOptions(&g.zopts);
+  /* default zopfli options as set by ZopfliInitOptions():
+   *  verbose = 0
+   *  numiterations = 15
+   *  blocksplitting = 1
+   *  blocksplittinglast = 0
+   *  blocksplittingmax = 15
+   */
+  ZopfliInitOptions(&g.zopts);
 #endif
 #ifdef NOTHREAD
-    g.procs = 1;
+  g.procs = 1;
 #else
-    g.procs = nprocs(8);
+  g.procs = nprocs(8);
 #endif
-    g.block = 131072UL;             // 128K
-    g.rsync = 0;                    // don't do rsync blocking
-    g.setdict = 1;                  // initialize dictionary each thread
-    g.verbosity = 1;                // normal message level
-    g.headis = 3;                   // store name and time (low bits == 11),
-                                    // restore neither (next bits == 00),
-                                    // where 01 is name and 10 is time
-    g.pipeout = 0;                  // don't force output to stdout
-    g.sufx = ".gz";                 // compressed file suffix
-    g.decode = 0;                   // compress
-    g.list = 0;                     // compress
-    g.keep = 0;                     // delete input file once compressed
-    g.force = 0;                    // don't overwrite, don't compress links
-    g.sync = 0;                     // don't force a flush on output
-    g.recurse = 0;                  // don't go into directories
-    g.form = 0;                     // use gzip format
+  g.block = 131072UL;             /* 128K */
+  g.rsync = 0;                    /* don't do rsync blocking */
+  g.setdict = 1;                  /* initialize dictionary each thread */
+  g.verbosity = 1;                /* normal message level */
+  g.headis = 3;                   /* store name and time (low bits == 11), 
+                                     restore neither (next bits == 00), 
+                                     where 01 is name and 10 is time */
+  g.pipeout = 0;                  /* don't force output to stdout */
+  g.sufx = ".gz";                 /* compressed file suffix */
+  g.decode = 0;                   /* compress */
+  g.list = 0;                     /* compress */
+  g.keep = 0;                     /* delete input file once compressed */
+  g.force = 0;                    /* don't overwrite, don't compress links */
+  g.sync = 0;                     /* don't force a flush on output */
+  g.recurse = 0;                  /* don't go into directories */
+  g.form = 0;                     /* use gzip format */
 }
 
 // Long options conversion to short options.
@@ -4302,12 +4319,12 @@ static void cut_yarn(int err) {
 int 
 main (int argc, char **argv) 
 {
-  int n;                          // general index
-  int nop;                        // index before which "-" means stdin
-  int done;                       // number of named files processed
-  size_t k;                       // program name length
-  char *opts, *p;                 // environment default options, marker
-  ball_t err;                     // error information from throw()
+  int n;            /* general index */
+  int nop;          /* index before which "-" means stdin */
+  int done;         /* number of named files processed */
+  size_t k;         /* program name length */
+  char *opts, *p;   /* environment default options, marker */
+  ball_t err;       /* error information from throw() */
   
   g.ret = 0;
   
@@ -4323,29 +4340,29 @@ main (int argc, char **argv)
       g.hname = NULL;
 
       /* save pointer to program name for error messages */
-      p = strrchr(argv[0], '/');
+      p = strrchr (argv[0], '/');
       p = p == NULL ? argv[0] : p + 1;
       g.prog = *p ? p : "pigz";
       
       /* prepare for interrupts and logging */
-      signal(SIGINT, cut_short);
+      signal (SIGINT, cut_short);
 #ifndef NOTHREAD
       yarn_prefix = g.prog;           // prefix for yarn error messages
       yarn_abort = cut_yarn;          // call on thread error
 #endif
 #ifdef PIGZ_DEBUG
-      gettimeofday(&start, NULL);     // starting time for log entries
-      log_init();                     // initialize logging
+      gettimeofday (&start, NULL);     // starting time for log entries
+      log_init ();                     // initialize logging
 #endif
       /* set all options to defaults */
-      defaults();
+      defaults ();
 
       /* check zlib version */
-      if (zlib_vernum() < 0x1230)
-        throw(EINVAL, "zlib version less than 1.2.3");
+      if (zlib_vernum () < 0x1230)
+        throw (EINVAL, "zlib version less than 1.2.3");
 
       /* process user environment variable defaults in GZIP */
-      opts = getenv("GZIP");
+      opts = getenv ("GZIP");
       if (opts != NULL) 
         {
           while (*opts) 
@@ -4357,16 +4374,16 @@ main (int argc, char **argv)
                 p++;
               n = *p;
               *p = 0;
-              if (!option(opts))
-                throw(EINVAL, "cannot provide files in "
-                              "GZIP environment variable");
+              if (!option (opts))
+                throw (EINVAL, "cannot provide files in "
+                               "GZIP environment variable");
               opts = p + (n ? 1 : 0);
             }
-          option(NULL); /* check for missing parameter */
+          option (NULL); /* check for missing parameter */
         }
 
       /* process user environment variable defaults in PIGZ as well */
-      opts = getenv("PIGZ");
+      opts = getenv ("PIGZ");
       if (opts != NULL) 
         {
           while (*opts) 
@@ -4378,23 +4395,23 @@ main (int argc, char **argv)
                 p++;
               n = *p;
               *p = 0;
-              if (!option(opts))
-                throw(EINVAL, "cannot provide files in "
-                              "PIGZ environment variable");
+              if (!option (opts))
+                throw (EINVAL, "cannot provide files in "
+                               "PIGZ environment variable");
               opts = p + (n ? 1 : 0);
             }
-          option(NULL);           // check for missing parameter
+          option (NULL);           // check for missing parameter
         }
 
       /* decompress if named "unpigz" or "gunzip", to stdout if "*cat" */
-      if (strcmp(g.prog, "unpigz") == 0 || strcmp(g.prog, "gunzip") == 0) 
+      if (strcmp (g.prog, "unpigz") == 0 || strcmp (g.prog, "gunzip") == 0) 
         {
           if (!g.decode)
             g.headis >>= 2;
           g.decode = 1;
         }
 
-      if ((k = strlen(g.prog)) > 2 && strcmp(g.prog + k - 3, "cat") == 0) 
+      if ((k = strlen (g.prog)) > 2 && strcmp (g.prog + k - 3, "cat") == 0) 
         {
           if (!g.decode)
             g.headis >>= 2;
@@ -4403,22 +4420,22 @@ main (int argc, char **argv)
         }
 
       /* if no arguments and compressed data to/from terminal, show help */
-      if (argc < 2 && isatty(g.decode ? 0 : 1))
-        help();
+      if (argc < 2 && isatty (g.decode ? 0 : 1))
+        help ();
 
       /* process all command-line options first */
       nop = argc;
       for (n = 1; n < argc; n++)
-        if (strcmp(argv[n], "--") == 0) 
+        if (strcmp (argv[n], "--") == 0) 
           {
             nop = n;         /* after this, "-" is the name "-" */
             argv[n] = NULL;  /* remove option */
             break;           /* ignore options after "--" */
           }
-        else if (option(argv[n]))  /* process argument */
+        else if (option (argv[n]))  /* process argument */
           argv[n] = NULL;          /* remove if option */
 
-      option(NULL);  /* check for missing parameter */
+      option (NULL);  /* check for missing parameter */
 
       /* process command-line filenames */
       done = 0;
@@ -4426,29 +4443,29 @@ main (int argc, char **argv)
         if (argv[n] != NULL) 
           {
             if (done == 1 && g.pipeout && !g.decode && !g.list && g.form > 1)
-              complain("warning: output will be concatenated zip files"
-                       " -- %s will not be able to extract", g.prog);
-            process(n < nop && strcmp(argv[n], "-") == 0 ? NULL : argv[n]);
+              complain ("warning: output will be concatenated zip files"
+                        " -- %s will not be able to extract", g.prog);
+            process(n < nop && strcmp (argv[n], "-") == 0 ? NULL : argv[n]);
             done++;
           }
 
       /* list stdin or compress stdin to stdout if no file names provided */
       if (done == 0)
-        process(NULL);
+        process (NULL);
     }
-    always 
-      {
-        /* release resources */
-        RELEASE(g.inf);
-        g.inz = 0;
-        new_opts();
-      }
-    catch (err) 
-      {
-        THREADABORT(err);
-      }
+  always 
+    {
+      /* release resources */
+      RELEASE (g.inf);
+      g.inz = 0;
+      new_opts ();
+    }
+  catch (err) 
+    {
+      THREADABORT (err);
+    }
 
-    /* show log (if any) */
-    log_dump();
-    return g.ret;
+  /* show log (if any) */
+  log_dump ();
+  return g.ret;
 }
