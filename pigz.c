@@ -4295,144 +4295,160 @@ static void cut_yarn(int err) {
 }
 #endif
 
-// Process command line arguments.
-int main(int argc, char **argv) {
-    int n;                          // general index
-    int nop;                        // index before which "-" means stdin
-    int done;                       // number of named files processed
-    size_t k;                       // program name length
-    char *opts, *p;                 // environment default options, marker
-    ball_t err;                     // error information from throw()
 
-    g.ret = 0;
-    try {
-        // initialize globals
-        g.inf = NULL;
-        g.inz = 0;
+/* ========================================================================
+ * Process command line arguments. 
+ */
+int 
+main (int argc, char **argv) 
+{
+  int n;                          // general index
+  int nop;                        // index before which "-" means stdin
+  int done;                       // number of named files processed
+  size_t k;                       // program name length
+  char *opts, *p;                 // environment default options, marker
+  ball_t err;                     // error information from throw()
+  
+  g.ret = 0;
+  
+  try 
+    {
+      g.inf = NULL;
+      g.inz = 0;
 #ifndef NOTHREAD
-        g.in_which = -1;
+      g.in_which = -1;
 #endif
-        g.outf = NULL;
-        g.first = 1;
-        g.hname = NULL;
+      g.outf = NULL;
+      g.first = 1;
+      g.hname = NULL;
 
-        // save pointer to program name for error messages
-        p = strrchr(argv[0], '/');
-        p = p == NULL ? argv[0] : p + 1;
-        g.prog = *p ? p : "pigz";
-
-        // prepare for interrupts and logging
-        signal(SIGINT, cut_short);
+      /* save pointer to program name for error messages */
+      p = strrchr(argv[0], '/');
+      p = p == NULL ? argv[0] : p + 1;
+      g.prog = *p ? p : "pigz";
+      
+      /* prepare for interrupts and logging */
+      signal(SIGINT, cut_short);
 #ifndef NOTHREAD
-        yarn_prefix = g.prog;           // prefix for yarn error messages
-        yarn_abort = cut_yarn;          // call on thread error
+      yarn_prefix = g.prog;           // prefix for yarn error messages
+      yarn_abort = cut_yarn;          // call on thread error
 #endif
 #ifdef PIGZ_DEBUG
-        gettimeofday(&start, NULL);     // starting time for log entries
-        log_init();                     // initialize logging
+      gettimeofday(&start, NULL);     // starting time for log entries
+      log_init();                     // initialize logging
 #endif
+      /* set all options to defaults */
+      defaults();
 
-        // set all options to defaults
-        defaults();
+      /* check zlib version */
+      if (zlib_vernum() < 0x1230)
+        throw(EINVAL, "zlib version less than 1.2.3");
 
-        // check zlib version
-        if (zlib_vernum() < 0x1230)
-           throw(EINVAL, "zlib version less than 1.2.3");
-
-        // process user environment variable defaults in GZIP
-        opts = getenv("GZIP");
-        if (opts != NULL) {
-            while (*opts) {
-                while (*opts == ' ' || *opts == '\t')
-                    opts++;
-                p = opts;
-                while (*p && *p != ' ' && *p != '\t')
-                    p++;
-                n = *p;
-                *p = 0;
-                if (!option(opts))
-                    throw(EINVAL, "cannot provide files in "
-                                  "GZIP environment variable");
-                opts = p + (n ? 1 : 0);
+      /* process user environment variable defaults in GZIP */
+      opts = getenv("GZIP");
+      if (opts != NULL) 
+        {
+          while (*opts) 
+            {
+              while (*opts == ' ' || *opts == '\t')
+                opts++;
+              p = opts;
+              while (*p && *p != ' ' && *p != '\t')
+                p++;
+              n = *p;
+              *p = 0;
+              if (!option(opts))
+                throw(EINVAL, "cannot provide files in "
+                              "GZIP environment variable");
+              opts = p + (n ? 1 : 0);
             }
-            option(NULL);           // check for missing parameter
+          option(NULL); /* check for missing parameter */
         }
 
-        // process user environment variable defaults in PIGZ as well
-        opts = getenv("PIGZ");
-        if (opts != NULL) {
-            while (*opts) {
-                while (*opts == ' ' || *opts == '\t')
-                    opts++;
-                p = opts;
-                while (*p && *p != ' ' && *p != '\t')
-                    p++;
-                n = *p;
-                *p = 0;
-                if (!option(opts))
-                    throw(EINVAL, "cannot provide files in "
-                                  "PIGZ environment variable");
-                opts = p + (n ? 1 : 0);
+      /* process user environment variable defaults in PIGZ as well */
+      opts = getenv("PIGZ");
+      if (opts != NULL) 
+        {
+          while (*opts) 
+            {
+              while (*opts == ' ' || *opts == '\t')
+                opts++;
+              p = opts;
+              while (*p && *p != ' ' && *p != '\t')
+                p++;
+              n = *p;
+              *p = 0;
+              if (!option(opts))
+                throw(EINVAL, "cannot provide files in "
+                              "PIGZ environment variable");
+              opts = p + (n ? 1 : 0);
             }
-            option(NULL);           // check for missing parameter
+          option(NULL);           // check for missing parameter
         }
 
-        // decompress if named "unpigz" or "gunzip", to stdout if "*cat"
-        if (strcmp(g.prog, "unpigz") == 0 || strcmp(g.prog, "gunzip") == 0) {
-            if (!g.decode)
-                g.headis >>= 2;
-            g.decode = 1;
-        }
-        if ((k = strlen(g.prog)) > 2 && strcmp(g.prog + k - 3, "cat") == 0) {
-            if (!g.decode)
-                g.headis >>= 2;
-            g.decode = 1;
-            g.pipeout = 1;
+      /* decompress if named "unpigz" or "gunzip", to stdout if "*cat" */
+      if (strcmp(g.prog, "unpigz") == 0 || strcmp(g.prog, "gunzip") == 0) 
+        {
+          if (!g.decode)
+            g.headis >>= 2;
+          g.decode = 1;
         }
 
-        // if no arguments and compressed data to/from terminal, show help
-        if (argc < 2 && isatty(g.decode ? 0 : 1))
-            help();
+      if ((k = strlen(g.prog)) > 2 && strcmp(g.prog + k - 3, "cat") == 0) 
+        {
+          if (!g.decode)
+            g.headis >>= 2;
+          g.decode = 1;
+          g.pipeout = 1;
+        }
 
-        // process all command-line options first
-        nop = argc;
-        for (n = 1; n < argc; n++)
-            if (strcmp(argv[n], "--") == 0) {
-                nop = n;                // after this, "-" is the name "-"
-                argv[n] = NULL;         // remove option
-                break;                  // ignore options after "--"
-            }
-            else if (option(argv[n]))   // process argument
-                argv[n] = NULL;         // remove if option
-        option(NULL);                   // check for missing parameter
+      /* if no arguments and compressed data to/from terminal, show help */
+      if (argc < 2 && isatty(g.decode ? 0 : 1))
+        help();
 
-        // process command-line filenames
-        done = 0;
-        for (n = 1; n < argc; n++)
-            if (argv[n] != NULL) {
-                if (done == 1 && g.pipeout && !g.decode && !g.list &&
-                    g.form > 1)
-                    complain("warning: output will be concatenated zip files"
-                             " -- %s will not be able to extract", g.prog);
-                process(n < nop && strcmp(argv[n], "-") == 0 ? NULL : argv[n]);
-                done++;
-            }
+      /* process all command-line options first */
+      nop = argc;
+      for (n = 1; n < argc; n++)
+        if (strcmp(argv[n], "--") == 0) 
+          {
+            nop = n;         /* after this, "-" is the name "-" */
+            argv[n] = NULL;  /* remove option */
+            break;           /* ignore options after "--" */
+          }
+        else if (option(argv[n]))  /* process argument */
+          argv[n] = NULL;          /* remove if option */
 
-        // list stdin or compress stdin to stdout if no file names provided
-        if (done == 0)
-            process(NULL);
+      option(NULL);  /* check for missing parameter */
+
+      /* process command-line filenames */
+      done = 0;
+      for (n = 1; n < argc; n++)
+        if (argv[n] != NULL) 
+          {
+            if (done == 1 && g.pipeout && !g.decode && !g.list && g.form > 1)
+              complain("warning: output will be concatenated zip files"
+                       " -- %s will not be able to extract", g.prog);
+            process(n < nop && strcmp(argv[n], "-") == 0 ? NULL : argv[n]);
+            done++;
+          }
+
+      /* list stdin or compress stdin to stdout if no file names provided */
+      if (done == 0)
+        process(NULL);
     }
-    always {
-        // release resources
+    always 
+      {
+        /* release resources */
         RELEASE(g.inf);
         g.inz = 0;
         new_opts();
-    }
-    catch (err) {
+      }
+    catch (err) 
+      {
         THREADABORT(err);
-    }
+      }
 
-    // show log (if any)
+    /* show log (if any) */
     log_dump();
     return g.ret;
 }
