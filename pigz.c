@@ -4102,7 +4102,7 @@ defaults (void)
   g.form = 0;                     /* use gzip format */
 }
 
-// Long options conversion to short options.
+//Long options conversion to short options.
 static char *longopts[][2] = {
     {"LZW", "Z"}, {"lzw", "Z"}, {"ascii", "a"}, {"best", "9"}, {"bits", "Z"},
     {"blocksize", "b"}, {"decompress", "d"}, {"fast", "1"}, {"force", "f"},
@@ -4117,30 +4117,43 @@ static char *longopts[][2] = {
     {"verbose", "v"}, {"version", "V"}, {"zip", "K"}, {"zlib", "z"}};
 #define NLOPTS (sizeof(longopts) / (sizeof(char *) << 1))
 
-// Either new buffer size, new compression level, or new number of processes.
-// Get rid of old buffers and threads to force the creation of new ones with
-// the new settings.
-static void new_opts(void) {
-    single_compress(1);
+
+/* ========================================================================
+ *  Either new buffer size, new compression level, or new number of processes.
+ * Get rid of old buffers and threads to force the creation of new ones with
+ * the new settings.
+ */
+static void 
+new_opts (void) 
+{
+  single_compress(1);
 #ifndef NOTHREAD
-    finish_jobs();
+  finish_jobs ();
 #endif
 }
 
-// Verify that arg is only digits, and if so, return the decimal value.
-static size_t num(char *arg) {
-    char *str = arg;
-    size_t val = 0;
 
-    if (*str == 0)
-        throw(EINVAL, "internal error: empty parameter");
-    do {
-        if (*str < '0' || *str > '9' ||
-            (val && ((~(size_t)0) - (size_t)(*str - '0')) / val < 10))
-            throw(EINVAL, "invalid numeric parameter: %s", arg);
-        val = val * 10 + (size_t)(*str - '0');
-    } while (*++str);
-    return val;
+/* ========================================================================
+ *  Verify that arg is only digits, and if so, return the decimal value
+ */
+
+static size_t 
+num (char *arg) 
+{
+  char *str = arg;
+  size_t val = 0;
+
+  if (*str == 0)
+    throw(EINVAL, "internal error: empty parameter");
+  do 
+    {
+      if (*str < '0' || *str > '9' ||
+         (val && ((~(size_t)0) - (size_t)(*str - '0')) / val < 10))
+        throw(EINVAL, "invalid numeric parameter: %s", arg);
+      val = val * 10 + (size_t)(*str - '0');
+    } 
+  while (*++str);
+  return val;
 }
 
 // Process an argument, return true if it is an option (not a filename)
@@ -4347,12 +4360,12 @@ main (int argc, char **argv)
       /* prepare for interrupts and logging */
       signal (SIGINT, cut_short);
 #ifndef NOTHREAD
-      yarn_prefix = g.prog;           // prefix for yarn error messages
-      yarn_abort = cut_yarn;          // call on thread error
+      yarn_prefix = g.prog;           /* prefix for yarn error messages */
+      yarn_abort = cut_yarn;          /* call on thread error */
 #endif
 #ifdef PIGZ_DEBUG
-      gettimeofday (&start, NULL);     // starting time for log entries
-      log_init ();                     // initialize logging
+      gettimeofday (&start, NULL);     /* starting time for log entries */
+      log_init ();                     /* initialize logging */
 #endif
       /* set all options to defaults */
       defaults ();
@@ -4400,7 +4413,7 @@ main (int argc, char **argv)
                                "PIGZ environment variable");
               opts = p + (n ? 1 : 0);
             }
-          option (NULL);           // check for missing parameter
+          option (NULL);           /* check for missing parameter */
         }
 
       /* decompress if named "unpigz" or "gunzip", to stdout if "*cat" */
