@@ -188,7 +188,6 @@
                        Fix sign error in compression reduction percentage
  */
 
-#define VERSION "pigz 2.4\n"
 
 /* To-do:
     - make source portable for Windows, VMS, etc. (see gzip source code)
@@ -398,18 +397,18 @@
 #endif
 
 #ifndef NOTHREAD
-#  include "yarn.h"     // thread, launch(), join(), join_all(), lock,
+#  include "lib/yarn.h"     // thread, launch(), join(), join_all(), lock,
                         // new_lock(), possess(), twist(), wait_for(),
                         // release(), peek_lock(), free_lock(), yarn_name
 #endif
 
 #ifndef NOZOPFLI
-#  include "zopfli/src/zopfli/deflate.h"    // ZopfliDeflatePart(),
+#  include "lib/zopfli/deflate.h"    // ZopfliDeflatePart(),
                                             // ZopfliInitOptions(),
                                             // ZopfliOptions
 #endif
 
-#include "try.h"        // try, catch, always, throw, drop, punt, ball_t
+#include "lib/try.h"        // try, catch, always, throw, drop, punt, ball_t
 
 // Prevent end-of-line conversions on MSDOSish operating systems.
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
@@ -4222,6 +4221,7 @@ static int option(char *arg) {
             case 'K':  g.form = 2;  g.sufx = ".zip";  break;
             case 'L':
                 fputs(VERSION, stderr);
+				fputs("\n", stderr);
                 fputs("Copyright (C) 2007-2017 Mark Adler\n", stderr);
                 fputs("Subject to the terms of the zlib license.\n",
                       stderr);
@@ -4237,6 +4237,7 @@ static int option(char *arg) {
                 // -T defined below as an alternative for -m
             case 'V':
                 fputs(VERSION, stderr);
+				fputs("\n", stderr);
                 if (g.verbosity > 1)
                     fprintf(stderr, "zlib %s\n", zlibVersion());
                 exit(0);
