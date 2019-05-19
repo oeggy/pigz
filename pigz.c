@@ -4107,7 +4107,7 @@ defaults (void)
   g.form = 0;                     /* use gzip format */
 }
 
-//Long options conversion to short options.
+/*Long options conversion to short options.
 static char *longopts[][2] = {
     {"LZW", "Z"}, {"lzw", "Z"}, {"ascii", "a"}, {"best", "9"}, {"bits", "Z"},
     {"blocksize", "b"}, {"decompress", "d"}, {"fast", "1"}, {"force", "f"},
@@ -4121,7 +4121,7 @@ static char *longopts[][2] = {
     {"test", "t"}, {"time", "M"}, {"to-stdout", "c"}, {"uncompress", "d"},
     {"verbose", "v"}, {"version", "V"}, {"zip", "K"}, {"zlib", "z"}};
 #define NLOPTS (sizeof(longopts) / (sizeof(char *) << 1))
-
+*/
 
 /* ========================================================================
  *  Either new buffer size, new compression level, or new number of processes.
@@ -4140,6 +4140,7 @@ new_opts (void)
 
 /* ========================================================================
  *  Verify that arg is only digits, and if so, return the decimal value
+    Will likely replace with library function later.
  */
 
 static size_t 
@@ -4161,6 +4162,7 @@ num (char *arg)
   return val;
 }
 
+/*
 // Process an argument, return true if it is an option (not a filename)
 static int option(char *arg) {
     static int get = 0;     // if not zero, look for option parameter
@@ -4208,6 +4210,7 @@ static int option(char *arg) {
             // process next single character option or compression level
             bad[1] = *arg;
             switch (*arg) {
+            
             case '0': case '1': case '2': case '3': case '4':
             case '5': case '6': case '7': case '8': case '9':
                 g.level = *arg - '0';
@@ -4224,7 +4227,7 @@ static int option(char *arg) {
             case 'I':  get = 4;  break;
             case 'J':  get = 5;  break;
 #endif
-            /*
+            
             case 'K':  g.form = 2;  g.sufx = ".zip";  break;
             case 'L':
                 fputs(VERSION, stderr);
@@ -4235,28 +4238,32 @@ static int option(char *arg) {
                 exit(0);
             case 'M':  g.headis |= 0xa;  break;
             case 'N':  g.headis = 0xf;  break;
-            */
+            
 #ifndef NOZOPFLI
             case 'O':  g.zopts.blocksplitting = 0;  break;
 #endif
-            /* case 'R':  g.rsync = 1;  break; */
+            
+            
+            case 'R':  g.rsync = 1;  break;
             case 'S':  get = 3;  break;
-            /*
+            
             case 'V':
                 fputs(VERSION, stderr);
                 if (g.verbosity > 1)
                     fprintf(stderr, "zlib %s\n", zlibVersion());
                 exit(0);
-            */
+            
             case 'Y':  g.sync = 1;  break;
+            
             case 'Z':
                 throw(EINVAL, "invalid option: LZW output not supported: %s",
                       bad);
             case 'a':
                 throw(EINVAL, "invalid option: no ascii conversion: %s",
                       bad);
+            
             case 'b':  get = 1;  break;
-            /*
+            
             case 'c':  g.pipeout = 1;  break;
             case 'd':  if (!g.decode) g.headis >>= 2;  g.decode = 1;  break;
             case 'f':  g.force = 1;  break;
@@ -4273,7 +4280,7 @@ static int option(char *arg) {
             case 't':  g.decode = 2;  break;
             case 'v':  g.verbosity++;  break;
             case 'z':  g.form = 1;  g.sufx = ".zz";  break;
-            */
+            
             default:
                 throw(EINVAL, "invalid option: %s", bad);
             }
@@ -4327,6 +4334,8 @@ static int option(char *arg) {
     // neither an option nor parameter
     return 0;
 }
+*/
+
 
 #ifndef NOTHREAD
 // handle error received from yarn function
@@ -4346,38 +4355,47 @@ main (int argc, char **argv)
   int nop;          /* index before which "-" means stdin */
   int done;         /* number of named files processed */
   size_t k;         /* program name length */
-  char *opts, *p;   /* environment default options, marker */
+  char /*opts,*/ *p;   /* environment default options, marker */
   ball_t err;       /* error information from throw() */
   int optc;
-  static char const short_options[] = "ab:cdfhHi?klLmMnNqrS:tvVZ123456789";
+  size_t j; 
+  /* Move these after testing */
+  static char const short_options[] = ":b:cC:dfFhiI:j:J:klLmMnNqrRS:tvVYz0123456789";
   static struct option const long_options[] =
     {
-      //{"best", 0, 0, '9'},
-      //{"fast", 0, 0, '1'},
-      //{"ascii", 0, 0, 'a},
-      //{"suffix", 1, 0, 'S'},
-      //{"blocksize", 1, 0, 'b'}, 
-      {"stdout", 0, 0, 'c'},
-      {"to-stdout", 0, 0, 'c'},
-      {"decompress", 0, 0, 'd'},
-      {"uncompress", 0, 0, 'd'},
-      {"force", 0, 0, 'f'},
-      {"help", 0, 0, 'h'},
+      {"fast",        0, 0, '1'},
+      {"best",        0, 0, '9'},     
+      /* {"ascii",    0, 0, 'a}, */
+      {"blocksize",   1, 0, 'b'}, 
+      {"stdout",      0, 0, 'c'},
+      {"to-stdout",   0, 0, 'c'},
+      {"complevel",   1, 0, 'C'},
+      {"decompress",  0, 0, 'd'},
+      {"uncompress",  0, 0, 'd'},
+      {"force",       0, 0, 'f'},
+      {"first",       0, 0, 'F'},
+      {"help",        0, 0, 'h'},
       {"independent", 0, 0, 'i'},
-      {"keep", 0, 0, 'k'},
-      {"license", 0, 0, 'L'},
-      {"no-time", 0, 0, 'm'},
-      {"time", 0, 0, 'M'},
-      {"no-name", 0, 0, 'n'},
-      {"name", 0, 0, 'N'},
-      {"quiet", 0, 0, 'q'},
-      {"recursive", 0, 0, 'r'},
-      {"rsyncable", 0, 0, 'R'},
-      {"list", 0, 0, 'l'},
-      {"test", 0, 0, 't'},
-      {"verbose", 0, 0, 'v'},
-      {"version", 0, 0, 'V'},
-      {"zlib",0,0,'z'},
+      {"iterations",  1, 0, 'I'},
+      {"jobs",        1, 0, 'j'},
+      {"maxsplits",   1, 0, 'J'},
+      {"keep",        0, 0, 'k'},
+      {"list",        0, 0, 'l'},
+      {"license",     0, 0, 'L'},
+      {"no-time",     0, 0, 'm'},
+      {"time",        0, 0, 'M'},
+      {"no-name",     0, 0, 'n'},
+      {"name",        0, 0, 'N'},
+      {"oneblock",    0, 0, 'O'},
+      {"quiet",       0, 0, 'q'},
+      {"recursive",   0, 0, 'r'},
+      {"rsyncable",   0, 0, 'R'},
+      {"suffix",      1, 0, 'S'},
+      {"test",        0, 0, 't'},
+      {"verbose",     0, 0, 'v'},
+      {"version",     0, 0, 'V'},
+      {"synchronous", 0, 0, 'Y'},
+      {"zlib",        0, 0, 'z'},
       { NULL, 0, 0, 0 }
     };
 
@@ -4417,46 +4435,47 @@ main (int argc, char **argv)
           throw (EINVAL, "zlib version less than 1.2.3");
 
       /* process user environment variable defaults in GZIP */
-      opts = getenv("GZIP");
-      if (opts != NULL)
-      {
-          while (*opts)
-          {
-              while (*opts == ' ' || *opts == '\t')
-                  opts++;
-              p = opts;
-              while (*p && *p != ' ' && *p != '\t')
-                  p++;
-              n = *p;
-              *p = 0;
-              if (!option(opts))
-                  throw (EINVAL, "cannot provide files in "
-                      "GZIP environment variable");
-              opts = p + (n ? 1 : 0);
-          }
-          option(NULL); /* check for missing parameter */
-      }
+      /* SWITCHING TO GZIPS METHOD. */
+      //opts = getenv("GZIP");
+      //if (opts != NULL)
+      //{
+      //    while (*opts)
+      //    {
+      //        while (*opts == ' ' || *opts == '\t')
+      //            opts++;
+      //        p = opts;
+      //        while (*p && *p != ' ' && *p != '\t')
+      //            p++;
+      //        n = *p;
+      //        *p = 0;
+      //        if (!option(opts))
+      //            throw (EINVAL, "cannot provide files in "
+      //                "GZIP environment variable");
+      //        opts = p + (n ? 1 : 0);
+      //    }
+      //    option(NULL); /* check for missing parameter */
+      //}
 
-      /* process user environment variable defaults in PIGZ as well */
-      opts = getenv("PIGZ");
-      if (opts != NULL)
-      {
-          while (*opts)
-          {
-              while (*opts == ' ' || *opts == '\t')
-                  opts++;
-              p = opts;
-              while (*p && *p != ' ' && *p != '\t')
-                  p++;
-              n = *p;
-              *p = 0;
-              if (!option(opts))
-                  throw (EINVAL, "cannot provide files in "
-                      "PIGZ environment variable");
-              opts = p + (n ? 1 : 0);
-          }
-          option(NULL);           /* check for missing parameter */
-      }
+      ///* process user environment variable defaults in PIGZ as well */
+      //opts = getenv("PIGZ");
+      //if (opts != NULL)
+      //{
+      //    while (*opts)
+      //    {
+      //        while (*opts == ' ' || *opts == '\t')
+      //            opts++;
+      //        p = opts;
+      //        while (*p && *p != ' ' && *p != '\t')
+      //            p++;
+      //        n = *p;
+      //        *p = 0;
+      //        if (!option(opts))
+      //            throw (EINVAL, "cannot provide files in "
+      //                "PIGZ environment variable");
+      //        opts = p + (n ? 1 : 0);
+      //    }
+      //    option(NULL);           /* check for missing parameter */
+      //}
 
       /* decompress if named "unpigz" or "gunzip", to stdout if "*cat" */
       if (strcmp(g.prog, "unpigz") == 0 || strcmp(g.prog, "gunzip") == 0)
@@ -4478,13 +4497,13 @@ main (int argc, char **argv)
       if (argc < 2 && isatty(g.decode ? 0 : 1))
           help();
 
+      nop = argc;
       /* process all command-line options first */
       /*
       nop = argc;
       for (n = 1; n < argc; n++)
         if (strcmp (argv[n], "--") == 0) 
           {
-            printf(" HERE %s | ", argv[n]);
             nop = n;         // after this, "-" is the name "-" 
             argv[n] = NULL;  // remove option 
             break;           // ignore options after "--" 
@@ -4495,20 +4514,51 @@ main (int argc, char **argv)
           }
       option (NULL);  // check for missing parameter 
       */
-      //fix warning from removing the above ^ 
+
+
       while ((optc = getopt_long(argc, argv, short_options, long_options, NULL)) != -1)
         {
           switch (optc)
             {
-              //TODO: O S Y Z a b p S I J 0-9, 11?
-              //Fix segfault on invalid opts
+              /* Z and a are NOT supported by pigz! */
+              /* Going to give compression level 11 its own letter later*/
+              case '0': case '1': case '2': case '3': case '4':
+              case '5': case '6': case '7': case '8': case '9':
+                        if ( (optc - '0') < 0 || (optc - '0') > 9)
+                          throw(EINVAL, "only levels 0..9 are allowed");
+                        g.level = optc - '0';
+                        break;    
+              case 'b': j = num(optarg);
+                        g.block = j << 10;                  /* chunk size */
+                        if (g.block < DICT)
+                          throw(EINVAL, "block size too small (must be >= 32K)");
+                        if (j != g.block >> 10 ||
+                            OUTPOOL(g.block) < g.block ||
+                            (ssize_t)OUTPOOL(g.block) < 0 ||
+                          g.block > (1UL << 29))          /* limited by append_len() */
+                          throw(EINVAL, "block size too large: %s", optarg);
+                        break;
               case 'c':  g.pipeout = 1;  break;
-              case 'd':  if (!g.decode) g.headis >>= 2;  g.decode = 1;  break;
+              case 'd':  if (!g.decode) 
+                           g.headis >>= 2;  
+                         g.decode = 1;  break;
               case 'f':  g.force = 1;  break;
-              case 'h':  help();  break;
+              case 'h':  help ();  break;
               case 'i':  g.setdict = 0;  break;
+              case 'j':  j = num (optarg); /* Use of num function to be removed later */
+                         g.procs = (int)j;                   /* # processes */
+                         if (g.procs < 1)
+                           throw(EINVAL, "invalid number of processes: %s", optarg);
+                         if ((size_t)g.procs != j || INBUFS(g.procs) < 1)
+                           throw(EINVAL, "too many processes: %s", optarg);
+#ifdef NOTHREAD
+                         if (g.procs > 1)
+                           throw(EINVAL, "compiled without threads");
+#endif
+                         break;
               case 'k':  g.keep = 1;  break;
-              case 'K':  g.form = 2;  g.sufx = ".zip";  break;
+              case 'K':  g.form = 2;  
+                         g.sufx = ".zip";  break;
               case 'l':  g.list = 1;  break;
               case 'L':  fputs(VERSION, stderr);
                          fputs("Copyright (C) 2007-2017 Mark Adler\n", stderr);
@@ -4519,20 +4569,43 @@ main (int argc, char **argv)
               case 'M':  g.headis |= 0xa;  break;
               case 'n':  g.headis = 0;  break;
               case 'N':  g.headis = 0xf;  break;
+#ifndef NOZOPFLI
+              case 'O':  g.zopts.blocksplitting = 0;  break;
+              case 'F':  g.zopts.blocksplittinglast = 1;  break;
+              case 'I':  g.zopts.numiterations = (int)num(optarg);  break; /* optimize iterations */
+              case 'J':  g.zopts.blocksplittingmax = (int)num(optarg);  break; /* max block splits */
+#endif
               case 'q':  g.verbosity = 0;  break;
               case 'r':  g.recurse = 1;  break;
               case 'R':  g.rsync = 1;  break;
               case 't':  g.decode = 2;  break;
+              case 'S':  if (*optarg == 0)
+                           throw(EINVAL, "suffix cannot be empty");
+                         g.sufx = optarg; /* gz suffix */
+                         break;
               case 'v': g.verbosity++;  break;
               case 'V': fputs(VERSION, stderr);
                         if (g.verbosity > 1)
                           fprintf(stderr, "zlib %s\n", zlibVersion());
                         exit(0);
                         break;
-              case 'z':  g.form = 1;  g.sufx = ".zz";  break;
-              default: throw(EINVAL, "invalid option: %s", optc);
+              case 'Y':  g.sync = 1;  break; /* Synchronous option, not in pdf should be added to docs */
+              case 'z':  g.form = 1;  
+                         g.sufx = ".zz";  break;
+              case ':': throw(EINVAL, "missing mandatory argument"); break;
+              default:  if(optopt)
+                          throw(EINVAL, "unrecognized option: %c", optopt);
+                        else 
+                          throw(EINVAL, "unrecognized option: %s", argv[(int)optind - 1]); break; 
             }
+          argv[(int)optind - 1] = NULL;
         }
+
+      /* Fixes ignoring after --, and lets allows the file processing code to be used as is temporarily */
+      /* Likely will switch over to gzips method cause its more intuitive*/
+
+      if (strcmp(argv[(int)optind - 1], "--") == 0)
+          argv[(int)optind - 1] = NULL;
 
       /* process command-line filenames */
       done = 0;
