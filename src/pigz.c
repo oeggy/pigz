@@ -348,6 +348,9 @@
 #include <dirent.h>             // opendir(), readdir(), closedir(), DIR,
                         // struct dirent
 #include <limits.h>             // UINT_MAX, INT_MAX
+
+#include <xalloc.h>
+
 #if __STDC_VERSION__-0 >= 199901L || __GNUC__-0 >= 3
 #include <inttypes.h>           // intmax_t, uintmax_t
 typedef uintmax_t length_t;
@@ -5007,59 +5010,138 @@ cut_yarn (int err)
 }
 #endif
 
+/* Convert the value of the environment variable ENVVAR_NAME
+to a newly allocated argument vector, and set *ARGCP and *ARGVP
+to the number of arguments and to the vector, respectively.
+Make the new vector's zeroth element equal to the old **ARGVP.
+Return a pointer to the newly allocated string storage.
+If the vector would be empty, do not allocate storage,
+do not set *ARGCP and *ARGVP, and return NULL.  */
+
+#define SEPARATOR	" \t"	/* separators in env variable */
+#define OPTIONS_VAR "GZIP" /* see tailor.h in gzip later */
+
+char *
+add_envopt( int *argcp,          /* pointer to argc */
+            char ***argvp,       /* pointer to argv */
+            char const *envvar_name) /* name of environment variable */
+{
+    char *p;             /* running pointer through env variable */
+    char **oargv;        /* runs through old argv array */
+    char **nargv;        /* runs through new argv array */
+    int  nargc = 0;      /* number of arguments in env variable */
+    char *env_val;
+
+    env_val = getenv(envvar_name);
+    if (env_val == NULL) return NULL;
+
+    env_val = xstrdup(env_val);
+
+    for (p = env_val; *p; nargc++) {        /* move through env_val */
+        p += strspn(p, SEPARATOR);	     /* skip leading separators */
+        if (*p == '\0') break;
+
+        p += strcspn(p, SEPARATOR);	     /* find end of word */
+        if (*p) *p++ = '\0';		     /* mark it */
+    }
+    if (nargc == 0) {
+        free(env_val);
+        return NULL;
+    }
+    *argcp = nargc + 1;
+    /* Allocate the new argv array, with an extra element just in case
+    * the original arg list did not end with a NULL.
+    */
+    nargv = xcalloc(*argcp + 1, sizeof(char *));
+    oargv = *argvp;
+    *argvp = nargv;
+
+    /* Copy the program name first */
+    *nargv++ = *oargv;
+
+    /* Then copy the environment args */
+    for (p = env_val; nargc > 0; nargc--) {
+        p += strspn(p, SEPARATOR);	     /* skip separators */
+        *(nargv++) = p;			     /* store start */
+        while (*p++);			     /* skip over word */
+    }
+
+    *nargv = NULL;
+    return env_val;
+}
+
+
 // Process command line arguments.
 int
 main (int argc, char **argv)
 {
-  int n;                        // general index
-  int nop;                      // index before which "-" means stdin
-  int done;                     // number of named files processed
-  size_t k;                     // program name length
-  char *opts, *p;               // environment default options, marker
-  ball_t err;                   // error information from throw()
+  int n;                        /* general index */
+  int nop;                      /* index before which "-" means stdin */
+  int done;                     /* number of named files processed */
+  size_t k;                     /* program name length */
+  char *opts, *p;               /* environment default options, marker */
+  ball_t err;                   /* error information from throw() */
 
-  g.ret = 0;
+  g.ret = 0;                    /* return code */
+
   try
   {
-    // initialize globals
+    /* initialize globals */
     g.inf = NULL;
     g.inz = 0;
 #ifndef NOTHREAD
     g.in_which = -1;
 #endif
-    g.alias = "-";
+    g.alias = "-";  //new
     g.outf = NULL;
     g.first = 1;
     g.hname = NULL;
-    g.hcomm = NULL;
+    g.hcomm = NULL;  //new
 
-    // save pointer to program name for error messages
+
+    //gzip does wild card expansion, thru EXPAND(argc,argv), pigz dont?
+
+    /* save pointer to program name for error messages */
     p = strrchr (argv[0], '/');
     p = p == NULL ? argv[0] : p + 1;
     g.prog = *p ? p : "pigz";
 
-    // prepare for interrupts and logging
+    //gzip does supression of .exe for MDOS and OS/2, pigz dont?
+
+    /* prepare for interrupts and logging */
     signal (SIGINT, cut_short);
+
 #ifndef NOTHREAD
-    yarn_prefix = g.prog;       // prefix for yarn error messages
-    yarn_abort = cut_yarn;      // call on thread error
+    yarn_prefix = g.prog;       /* prefix for yarn error messages */
+    yarn_abort = cut_yarn;      /* call on thread error */
 #endif
 #ifdef PIGZ_DEBUG
-    gettimeofday (&start, NULL);        // starting time for log entries
-    log_init ();                // initialize logging
+    gettimeofday (&start, NULL);        /* starting time for log entries */
+    log_init ();                        /* initialize logging */
 #endif
 
-    // set all options to defaults
+    /* set all options to defaults */
     defaults ();
 
-    // check zlib version
+    /* check zlib version */
     if (zlib_vernum () < 0x1230)
       throw (EINVAL, "zlib version less than 1.2.3");
 
-    // create CRC table, in case zlib compiled with dynamic tables
-    get_crc_table ();
+    /* create CRC table, in case zlib compiled with dynamic tables */
+    get_crc_table (); //new
 
-    // process user environment variable defaults in GZIP
+    /* Add options in GZIP environment variable, if exists */
+    int env_argc;
+    char **env_argv;
+    char ** argv_copy = argv;
+    opts = add_envopt(&env_argc, &argv_copy, OPTIONS_VAR);
+    env_argv = opts ? argv_copy : NULL;
+
+
+
+
+
+    /* process user environment variable defaults in GZIP
     opts = getenv ("GZIP");
     if (opts != NULL)
       {
@@ -5100,6 +5182,7 @@ main (int argc, char **argv)
           }
         option (NULL);          // check for missing parameter
       }
+      */
 
     // decompress if named "unpigz" or "gunzip", to stdout if "*cat"
     if (strcmp (g.prog, "unpigz") == 0 || strcmp (g.prog, "gunzip") == 0)
