@@ -11,6 +11,8 @@ AH_TEMPLATE([NOZOPFLI],
 	     slow compression algorithm.])
 AH_TEMPLATE([PIGZ_DEBUG],
 	    [Advanced debugging info such as memory use and very detailed logging.])
+AH_TEMPLATE([_FORTIFY_SOURCE],
+	    [Enable glibc source fortification (gcc only).])
 AC_ARG_ENABLE([zopfli],
 	[AS_HELP_STRING([--disable-zopfli],
 		[Disable support for zopfli, a very slow but very effective algorithm])],
@@ -27,9 +29,10 @@ AC_ARG_ENABLE([threads],
 AC_ARG_ENABLE([advanced-debug],
 	[AS_HELP_STRING([--enable-advanced-debug],
 		[Enable advanced verbose debugging.])],
-	[AS_IF([test "xenable_advanced_debug" != "xno"],
+	[AS_IF([test "x$enable_advanced_debug" != "xno"],
 	       AC_DEFINE([PIGZ_DEBUG]))])
 AC_CONFIG_FILES([Makefile lib/Makefile tests/Makefile])
+
 
 
 AC_CONFIG_AUX_DIR([build-aux])
@@ -37,6 +40,9 @@ AC_CONFIG_HEADERS([lib/config.h:lib/config.hin])
 AM_INIT_AUTOMAKE([1.11 foreign subdir-objects -Wall -Werror])
 dnl TODO: change to 'foreign'->'gnu' after adding requisite infos.
 AM_SILENT_RULES([yes])
+AC_PROG_CC
+AS_IF([test "x$GCC" == "xyes"],
+       AC_DEFINE([_FORTIFY_SOURCE], 2))
 AC_PROG_CC_C99
 gl_EARLY
 gl_INIT
