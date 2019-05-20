@@ -323,6 +323,7 @@
 #include <config.h>
 #define _FILE_OFFSET_BITS 64
 
+#include "xalloc.h"
 // Included headers and what is expected from each.
 #include <stdio.h>              // fflush(), fprintf(), fputs(), getchar(), putc(),
                         // puts(), printf(), vasprintf(), stderr, EOF, NULL,
@@ -349,7 +350,6 @@
                         // struct dirent
 #include <limits.h>             // UINT_MAX, INT_MAX
 
-#include <xalloc.h>
 
 #if __STDC_VERSION__-0 >= 199901L || __GNUC__-0 >= 3
 #include <inttypes.h>           // intmax_t, uintmax_t
