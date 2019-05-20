@@ -40,6 +40,7 @@ AC_PROG_CC_C99
 gl_EARLY
 gl_INIT
 gl_MANYWARN_ALL_GCC([warnings])
+gl_XALLOC
 dnl ignored warnings:
 nw=
 gl_MANYWARN_COMPLEMENT([warnings], [$warnings], [$nw])
@@ -47,5 +48,5 @@ for w in $warnings; do
 	gl_WARN_ADD([$w])
 done
 AC_PROG_RANLIB
-LIBS="-lm -lpthread -lz"
+LIBS="-lm -lz"
 AC_OUTPUT
