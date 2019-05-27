@@ -20,6 +20,7 @@ lib/time.h
 build-aux
 autom4te.cache/
 m4/
+lib/.gitignore
 lib/libpigz.a
 *.tar.gz
 tags
