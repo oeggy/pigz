@@ -1,0 +1,19 @@
+#! /bin/sh
+# Test version before gzip 1.10 would produce the same output
+
+
+. "${srcdir=.}/init.sh"; path_prepend_ ..
+
+gzip="gzip"
+fail=0
+
+test -x ${gzip} | fail=1
+
+echo input | ${gzip} > out.gz || fail=1
+sleep 1
+${gzip} -c > out1 || fail=1
+${gzippier} -c > out2 || fail=1
+
+compare out1 out2 || fail=1
+
+Exit ${fail}

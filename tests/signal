@@ -1,0 +1,52 @@
+#! /bin/sh
+# Test signal handling for the gzip
+
+. "${srcdir=.}/init.sh"; path_prepend_ ..
+
+gzip="gzip"
+gzippier="../pigz"
+pid=''
+fail=0
+filename="signal-test"
+
+# test -x ${gzip} || fail=1
+# test -x ${gzippier} || fail=1
+
+cp -u ${filename} "${filename}1" || fail=1
+cp -u ${filename} "${filename}2" || fail=1
+
+
+
+head -c 1073741824 </dev/urandom >${filename} || fail=1
+
+ls -a
+${gzip} "${filename}1" &
+pid=$!
+sleep 1
+test -n ${pid} || fail=1
+echo "send SIGINT to process ${pid}"
+kill -2 ${pid}
+sleep 10
+pgrep -c ${pid} && fail=1
+
+ls -a
+
+pid=''
+${gzippier} "${filename}2"
+pid=$!
+sleep 1
+test -n ${pid} || fail=1
+echo "send SIGINT to process ${pid}"
+kill -2 ${pid}
+sleep 10
+pgrep -c ${pid} && fail=1
+ls -a
+
+diff -q "${filename}1" "${filename}2" || fail=1
+
+# rm "${filename}1" &> /dev/null
+# rm "${filename}2" &> /dev/null
+# rm "${filename}1.gz" &> /dev/null
+# rm "${filename}2.gz" &> /dev/null
+
+Exit ${fail}
