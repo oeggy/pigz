@@ -15,7 +15,6 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 TESTS =					\
-  gzip-env				\
   helin-segv				\
   help-version				\
   hufts					\
@@ -31,33 +30,19 @@ TESTS =					\
   unpack-invalid			\
   unpack-valid				\
   upper-suffix				\
-  z-suffix				\
-  zdiff					\
-  zgrep-f				\
-  zgrep-context				\
-  zgrep-signal				\
-  znew-k
+  z-suffix
 
 EXTRA_DIST =				\
   $(TESTS)				\
   init.cfg				\
   init.sh				\
-  hufts-segv.gz
+  hufts-segv.gz				\
+  backcom-test.gz				\
+  signal-test
 
 built_programs = \
   gzip		\
-  gunzip	\
-  gzexe		\
-  zcat		\
-  zcmp		\
-  zdiff		\
-  zegrep	\
-  zfgrep	\
-  zforce	\
-  zgrep		\
-  zless		\
-  zmore		\
-  znew
+  gunzip
 
 TESTS_ENVIRONMENT =					\
   tmp__=$$TMPDIR; test -d "$$tmp__" || tmp__=.;		\
