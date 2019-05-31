@@ -37,7 +37,7 @@ EXTRA_DIST =				\
   init.cfg				\
   init.sh				\
   hufts-segv.gz				\
-  backcom-test.gz				\
+  backcomp-test.gz				\
   signal-test
 
 built_programs = \
