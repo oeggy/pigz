@@ -10,7 +10,8 @@ man_MANS = src/pigz.1
 
 bin_PROGRAMS = pigz
 pigz_LDADD = $(LIBOBJS)
-pigz_SOURCES = $(man_MANS) \
+pigz_SOURCES = \
+	       $(man_MANS) \
 	       src/pigz.c \
 	       lib/try.c \
 	       lib/try.h \
