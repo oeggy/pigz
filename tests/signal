@@ -3,50 +3,26 @@
 
 . "${srcdir=.}/init.sh"; path_prepend_ ..
 
-gzip="gzip"
-gzippier="../pigz"
+gzip="pigz"
 pid=''
 fail=0
-filename="signal-test"
+filename="signal-segv"
 
-# test -x ${gzip} || fail=1
-# test -x ${gzippier} || fail=1
+head -c 20M </dev/urandom >${filename}
 
-cp -u ${filename} "${filename}1" || fail=1
-cp -u ${filename} "${filename}2" || fail=1
+cp ${filename} "${filename}1" || fail=1
 
-
-
-head -c 1073741824 </dev/urandom >${filename} || fail=1
-
-ls -a
-${gzip} "${filename}1" &
-pid=$!
-sleep 1
-test -n ${pid} || fail=1
-echo "send SIGINT to process ${pid}"
-kill -2 ${pid}
-sleep 10
-pgrep -c ${pid} && fail=1
-
-ls -a
-
-pid=''
-${gzippier} "${filename}2"
-pid=$!
-sleep 1
-test -n ${pid} || fail=1
-echo "send SIGINT to process ${pid}"
-kill -2 ${pid}
-sleep 10
-pgrep -c ${pid} && fail=1
-ls -a
-
-diff -q "${filename}1" "${filename}2" || fail=1
-
-# rm "${filename}1" &> /dev/null
-# rm "${filename}2" &> /dev/null
-# rm "${filename}1.gz" &> /dev/null
-# rm "${filename}2.gz" &> /dev/null
+for sig in 1 2 13 15 24 25
+do
+  cp ${filename} "${filename}1" || fail=1
+  ${gzip} "${filename}1" &
+  pid=$!
+  test -n ${pid} || fail=1
+  kill -${sig} ${pid} || fail=1
+  pgrep -c ${pid} && fail=1
+  test -f "${filename}1" || fail=1
+  test -f "${filename}1.gz" && fail=1
+  compare ${filename} "${filename}1" || fail=1
+done
 
 Exit ${fail}

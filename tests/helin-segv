@@ -19,13 +19,15 @@
 
 . "${srcdir=.}/init.sh"; path_prepend_ ..
 
+gzip="pigz"
+
 # This test case was provided by Aki Helin.
 printf '\037\235\220\0\0\0\304' > helin.gz || framework_failure_
 printf '\0\0' > exp || framework_failure_
 
 fail=0
 
-gzip -dc helin.gz > out || fail=1
+${gzip} -dc helin.gz > out || fail=1
 compare exp out || fail=1
 
 Exit $fail

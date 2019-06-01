@@ -20,13 +20,15 @@
 
 . "${srcdir=.}/init.sh"; path_prepend_ ..
 
+gzip="pigz"
+
 printf 'xxx\nyyy\n'      > exp2 || framework_failure_
 printf 'aaa\nbbb\nccc\n' > exp3 || framework_failure_
 
 fail=0
 
 (echo xxx; echo yyy) > in || fail=1
-gzip -cdf < in > out || fail=1
+${gzip} -cdf < in > out || fail=1
 compare exp2 out || fail=1
 
 # Uncompressed input, followed by compressed data.
@@ -36,12 +38,12 @@ compare exp2 out || fail=1
 # compare exp2 out || fail=1
 
 # Compressed input, followed by regular (not-compressed) data.
-(echo xxx|gzip; echo yyy) > in || fail=1
-gzip -cdf < in > out || fail=1
+(echo xxx|${gzip}; echo yyy) > in || fail=1
+${gzip} -cdf < in > out || fail=1
 compare exp2 out || fail=1
 
-(echo xxx|gzip; echo yyy|gzip) > in || fail=1
-gzip -cdf < in > out || fail=1
+(echo xxx|${gzip}; echo yyy|${gzip}) > in || fail=1
+${gzip} -cdf < in > out || fail=1
 compare exp2 out || fail=1
 
 in_str=0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-+=%
@@ -61,7 +63,7 @@ i=0
 for i in $sizes; do
   echo $i
   printf %$i.${i}s $in_str > in
-  gzip -cdf < in > out
+  ${gzip} -cdf < in > out
   compare in out || fail=1
 done
 

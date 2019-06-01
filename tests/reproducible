@@ -19,9 +19,11 @@
 
 . "${srcdir=.}/init.sh"; path_prepend_ ..
 
-echo a | gzip > exp || fail=1
+gzip="pigz"
+
+echo a | ${gzip} > exp || fail=1
 sleep 1
-echo a | gzip > out || fail=1
+echo a | ${gzip} > out || fail=1
 
 compare exp out || fail=1
 

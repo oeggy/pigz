@@ -25,6 +25,8 @@ export SHELL
 
 . "${srcdir=.}/init.sh"; path_prepend_ ..
 
+gzip="pigz"
+
 expected_failure_status_chroot=125
 expected_failure_status_env=125
 expected_failure_status_nice=125
@@ -241,7 +243,7 @@ for i in $built_programs; do
   case $i in chroot|stty|tty|false|chcon|runcon) continue;; esac
 
   rm -rf $tmp_in $tmp_in2 $tmp_dir $tmp_out $bigZ_in $zin $zin2
-  echo z |gzip > $zin
+  echo z |${gzip} > $zin
   cp $zin $zin2
   cp $zin $bigZ_in
 

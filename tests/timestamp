@@ -19,6 +19,8 @@
 
 . "${srcdir=.}/init.sh"; path_prepend_ ..
 
+gzip="pigz"
+
 TZ=UTC0
 export TZ
 oldIFS=$IFS
@@ -39,7 +41,7 @@ do
   if touch -t $time in; then
     ls_l=$(ls -l in)
     case $ls_l in
-      *"$date"*) returns_ 2 gzip in || fail=1;;
+      *"$date"*) returns_ 2 ${gzip} in || fail=1;;
     esac
   fi
   rm -f in.gz in
@@ -60,7 +62,7 @@ do
   if touch -t $time in; then
     ls_l=$(ls -l in)
     case $ls_l in
-      *"$date"*) gzip in || fail=1;;
+      *"$date"*) ${gzip} in || fail=1;;
     esac
   fi
   rm -f in.gz in
@@ -70,11 +72,11 @@ done
 # or warns that the timestamp is out of time_t range.
 printf '\037\213\10\0\377\377\377\377\0\377\3\0\0\0\0\0\0\0\0\0' >y2106.gz ||
   framework_failure_
-gzip -Nlv <y2106.gz
+${gzip} -Nlv <y2106.gz
 status=$?
 test $status -eq 0 || test $status -eq 2 || fail=1
 
 # Ensure that --no-name does not provoke a timestamp warning.
-: | gzip --no-name > k || fail=1
+: | ${gzip} --no-name > k || fail=1
 
 Exit $fail

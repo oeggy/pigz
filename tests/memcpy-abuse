@@ -20,14 +20,16 @@
 
 . "${srcdir=.}/init.sh"; path_prepend_ ..
 
+gzip="pigz"
+
 # The input must be larger than 32KiB and slightly
 # less uniform than e.g., all zeros.
-printf wxy%032767d 0 | tee in | gzip > in.gz || framework_failure_
+printf wxy%032767d 0 | tee in | ${gzip} > in.gz || framework_failure_
 
 fail=0
 
 # Before the fix, this would call memcpy with overlapping regions.
-gzip -dc in.gz > out || fail=1
+${gzip} -dc in.gz > out || fail=1
 
 compare in out || fail=1
 

@@ -30,19 +30,20 @@ TESTS =					\
   unpack-invalid			\
   unpack-valid				\
   upper-suffix				\
-  z-suffix
+  z-suffix				\
+  backcomp				\
+  signal
 
 EXTRA_DIST =				\
   $(TESTS)				\
   init.cfg				\
   init.sh				\
   hufts-segv.gz				\
-  backcomp-test.gz				\
-  signal-test
+  backcomp-segv				\
+  backcomp-segv.gz
 
 built_programs = \
-  gzip		\
-  gunzip
+  pigz
 
 TESTS_ENVIRONMENT =					\
   tmp__=$$TMPDIR; test -d "$$tmp__" || tmp__=.;		\

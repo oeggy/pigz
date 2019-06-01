@@ -20,11 +20,13 @@
 
 . "${srcdir=.}/init.sh"; path_prepend_ ..
 
+gzip="pigz"
+
 # Use a suffix of "T":
-:|gzip > kT || framework_failure_
+:|${gzip} > kT || framework_failure_
 
 fail=0
-gzip -d -S T kT > out 2> err || fail=1
+${gzip} -d -S T kT > out 2> err || fail=1
 
 test -f k || fail=1
 compare /dev/null out || fail=1
