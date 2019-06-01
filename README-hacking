@@ -1,0 +1,2 @@
+To compile on macOS, after ./bootstrap and ./configure, change line 74 in file 
+lib/pthread.in.h to #include "config.h"

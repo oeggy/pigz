@@ -2,6 +2,7 @@ AC_PREREQ([2.65])
 AC_INIT([pigz], m4_esyscmd_s([git describe --dirty]))
 AC_CONFIG_SRCDIR(src/pigz.c)
 AC_CONFIG_LIBOBJ_DIR([lib])
+AC_CONFIG_MACRO_DIR([m4])
 
 AH_TEMPLATE([NOTHREAD],
 	    [Disable support for multithreading.])
@@ -28,12 +29,12 @@ AC_ARG_ENABLE([advanced-debug],
 		[Enable advanced verbose debugging.])],
 	[AS_IF([test "xenable_advanced_debug" != "xno"],
 	       AC_DEFINE([PIGZ_DEBUG]))])
-AC_CONFIG_FILES([Makefile lib/Makefile])
+AC_CONFIG_FILES([Makefile lib/Makefile tests/Makefile])
 
 
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_HEADERS([lib/config.h:lib/config.hin])
-AM_INIT_AUTOMAKE([1.11 foreign subdir-objects -Wall -Werror]) 
+AM_INIT_AUTOMAKE([1.11 foreign subdir-objects -Wall -Werror])
 dnl TODO: change to 'foreign'->'gnu' after adding requisite infos.
 AM_SILENT_RULES([yes])
 AC_PROG_CC_C99

@@ -1,8 +1,17 @@
-SUBDIRS = lib
+SUBDIRS = lib . tests
+AM_CPPFLAGS = -I$(top_srcdir)/lib
+AM_CFLAGS = $(WARN_CFLAGS) $(WERROR_CFLAGS)
+ACLOCAL_AMFLAGS = -I m4
+
+# Tell the linker to omit references to unused shared libraries.
+AM_LDFLAGS = $(IGNORE_UNUSED_LIBRARIES_CFLAGS)
+
+man_MANS = src/pigz.1
 
 bin_PROGRAMS = pigz
 pigz_LDADD = $(LIBOBJS)
 pigz_SOURCES = \
+	       $(man_MANS) \
 	       src/pigz.c \
 	       src/tailor.h \
 	       src/util.c \
@@ -33,6 +42,7 @@ pigz_SOURCES = \
 	       lib/zopfli/zopfli.h
 
 EXTRA_DIST = \
+	     m4/gnulib-cache.m4 \
 	     lib/zopfli/README \
 	     lib/zopfli/COPYING \
 	     lib/zopfli/CONTRIBUTORS \
@@ -40,8 +50,8 @@ EXTRA_DIST = \
 	     ChangeLog \
 	     COPYING \
 	     NEWS \
-	     pigz.pdf \
-	     pigz.spec \
+	    #  pigz.pdf \
+	    #  pigz.spec \
 	     README \
 	     README-hacking
 

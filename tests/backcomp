@@ -1,0 +1,21 @@
+#! /bin/sh
+# Test decompressed would produce the same output
+# backcomp-segv.gz is compressed with gzip 1.10. since the implementation
+# after 1.10 got changed, this test would test if the current gzip produce
+# identical output by decompressing the file.
+
+. "${srcdir=.}/init.sh"; path_prepend_ ..
+
+gzip="pigz"
+cver="$(${gzip} --version | head -1 | cut -d " " -f2)"
+rver="1.10"
+fail=0
+
+test -x ${gzip} || fail=1
+if [ "$(printf '%s\n' "$rver" "$cver" | sort -V | head -1)" != "$rver" ]; then
+  out1="$abs_srcdir/backcomp-segv.gz"
+  ${gzip} -c "$abs_srcdir/backcomp-segv" > out2 || fail=1
+  compare ${out1} out2 || fail=1
+fi
+
+Exit ${fail}
