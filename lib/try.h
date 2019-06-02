@@ -418,7 +418,7 @@ struct try_s_ {
    to make use of any arguments after the 0 anyway.
 
    try.c must be compiled and linked to provide the try_throw_() function. */
-void try_throw_(int code, char *fmt, ...);
+void try_throw_(int code, const char *fmt, ...);
 #define TRY_THROW_(...) try_throw_(__VA_ARGS__, NULL)
 
 /* Retry the try block.  This will start over at the beginning of the try

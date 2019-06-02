@@ -104,8 +104,10 @@
         may exit to abort the application, or if it returns, the yarn error
         handler will exit (set to NULL by default for no action)
  */
-
-extern char *yarn_prefix;
+#ifndef _YARN_H
+#define _YARN_H
+#include <stddef.h>
+extern const char *yarn_prefix;
 extern void (*yarn_abort)(int);
 
 void yarn_mem(void *(*)(size_t), void (*)(void *));
@@ -136,3 +138,4 @@ void wait_for_(lock *, enum wait_op, long, char const *, long);
 long peek_lock(lock *);
 void free_lock_(lock *, char const *, long);
 #define free_lock(a) free_lock_(a, __FILE__, __LINE__)
+#endif

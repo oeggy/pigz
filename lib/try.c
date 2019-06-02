@@ -35,7 +35,7 @@
 /* Throw an exception.  This must always have at least two arguments, where the
    second argument can be a NULL.  The throw() macro is permitted to have one
    argument, since it appends a NULL argument in the call to this function. */
-void try_throw_(int code, char *fmt, ...)
+void try_throw_(int code, const char *fmt, ...)
 {
     /* save the thrown information in the try stack before jumping */
     try_setup_();
