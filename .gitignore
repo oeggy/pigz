@@ -24,6 +24,7 @@ lib/.gitignore
 lib/libpigz.a
 *.tar.gz
 tags
+lib/dummy.c
 lib/Makefile.am
 lib/arg-nonnull.h
 lib/c++defs.h
