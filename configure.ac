@@ -46,9 +46,15 @@ AS_IF([test "x$GCC" == "xyes"],
 AC_PROG_CC_C99
 gl_EARLY
 gl_INIT
-gl_MANYWARN_ALL_GCC([warnings])
 dnl ignored warnings:
 nw=
+nw="$nw -Wdouble-promotion"
+nw="$nw -Wsuggest-attribute=format"
+nw="$nw -Wsuggest-attribute=const"
+nw="$nw -Wsuggest-attribute=pure"
+nw="$nw -Wunused-macros"
+
+gl_MANYWARN_ALL_GCC([warnings])
 gl_MANYWARN_COMPLEMENT([warnings], [$warnings], [$nw])
 for w in $warnings; do
 	gl_WARN_ADD([$w])
