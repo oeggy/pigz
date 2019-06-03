@@ -3962,7 +3962,7 @@ main (int argc, char **argv)
             case 'K':  g.form = 2;  
                        g.sufx = ".zip";  break;
             case 'l':  g.list = 1;  break;
-            case 'L':  fputs (VERSION, stderr); /* TODO: Ask professor what we make this */
+            case 'L':  fputs (VERSION, stderr);
                        fputs ("Copyright (C) 2007-2017 Mark Adler\n", stderr);
                        fputs ("Subject to the terms of the zlib license.\n", stderr);
                        fputs ("No warranty is provided or implied.\n", stderr);
@@ -3986,7 +3986,7 @@ main (int argc, char **argv)
                          throw (EINVAL, "invalid suffix '%s'", g.sufx);
                        break;
             case 'v': g.verbosity++;  break;
-            case 'V': fputs (VERSION, stderr);
+            case 'V': fprintf (stderr, "%s\n", VERSION);
                       if (g.verbosity > 1)
                         fprintf (stderr, "zlib %s\n", zlibVersion());
                       exit (0);
