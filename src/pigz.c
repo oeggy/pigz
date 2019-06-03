@@ -2284,11 +2284,21 @@ compressed_suffix (char *nm)
 {
   size_t len;
   size_t suf_len;
-  char *nm_copy = nm;
+  char *nm_cp1 = nm;
+  char *nm_cp2 = nm;
 
   len = strlen (nm);
   suf_len = strlen(g.sufx);
 
+  /* Prefer long length user suffix given by -S first */
+  if (suf_len > 5 && len > suf_len)
+    {
+      nm_cp1 += len - suf_len;
+      if (strcmp (nm_cp1, g.sufx) == 0)
+        return suf_len;
+    }
+
+  /* Prefer these suffixes next */
   if (len > 4)
     {
       nm += len - 4;
@@ -2313,11 +2323,15 @@ compressed_suffix (char *nm)
         return 2;
     }
     
-  /* Use above extensions first, then check for -S user extension  */
-  nm_copy += len - suf_len;
-  if (strcmp (nm_copy, g.sufx) == 0)
-    return suf_len;
+  /* If not a long length extension, or one above, check -S user extension again  */
+  if (len > suf_len)
+    {
+      nm_cp2 += len - suf_len;
+      if (strcmp (nm_cp2, g.sufx) == 0)
+        return suf_len;
+    }
 
+  /* Otherwise unknown suffix */
   return 0;
 }
 
