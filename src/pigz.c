@@ -903,40 +903,40 @@ compress_thread (void *dummy)
             else
               {
                 /* Compress len bytes using zopfli, end at byte boundary. */
-                unsigned char bits, *out;
+                unsigned char zop_bits, *out;
                 size_t outsize;
 
                 out = NULL;
                 outsize = 0;
-                bits = 0;
+                zop_bits = 0;
                 ZopfliDeflatePart (&g.zopts, 2, !(left || job->more),
                                    temp->buf, temp->len, temp->len + len,
-                                   &bits, &out, &outsize);
+                                   &zop_bits, &out, &outsize);
                 assert (job->out->len + outsize + 5 <= job->out->size);
                 memcpy (job->out->buf + job->out->len, out, outsize);
                 free (out);
                 job->out->len += outsize;
                 if (left || job->more)
                   {
-                    bits &= 7;
-                    if ((bits & 1) || !g.setdict)
+                    zop_bits &= 7;
+                    if ((zop_bits & 1) || !g.setdict)
                       {
-                        if (bits == 0 || bits > 5)
+                        if (zop_bits == 0 || zop_bits > 5)
                           job->out->buf[job->out->len++] = 0;
                         job->out->buf[job->out->len++] = 0;
                         job->out->buf[job->out->len++] = 0;
                         job->out->buf[job->out->len++] = 0xff;
                         job->out->buf[job->out->len++] = 0xff;
                       }
-                    else if (bits)
+                    else if (zop_bits)
                       {
                         do
                           {
-                            job->out->buf[job->out->len - 1] += 2 << bits;
+                            job->out->buf[job->out->len - 1] += 2 << zop_bits;
                             job->out->buf[job->out->len++] = 0;
-                            bits += 2;
+                            zop_bits += 2;
                           }
-                        while (bits < 8);
+                        while (zop_bits < 8);
                       }
                     if (!g.setdict)
                       {         /* two markers when independent */
