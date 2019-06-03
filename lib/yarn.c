@@ -52,7 +52,7 @@
 #define local static            // for non-exported functions and globals
 
 // Error handling external globals, resettable by application.
-char *yarn_prefix = "yarn";
+const char *yarn_prefix = "yarn";
 void (*yarn_abort)(int) = NULL;
 
 

@@ -259,62 +259,62 @@
 
    When doing parallel compression, pigz uses the main thread to read the input
    in 'size' sized chunks (see -b), and puts those in a compression job list,
-   each with a sequence number to keep track of the ordering.  If it is not the
+   each with a sequence number to keep track of the ordering. If it is not the
    first chunk, then that job also points to the previous input buffer, from
    which the last 32K will be used as a dictionary (unless -i is specified).
    This sets a lower limit of 32K on 'size'.
 
-   pigz launches up to 'procs' compression threads (see -p).  Each compression
+   pigz launches up to 'procs' compression threads (see -p). Each compression
    thread continues to look for jobs in the compression list and perform those
-   jobs until instructed to return.  When a job is pulled, the dictionary, if
+   jobs until instructed to return. When a job is pulled, the dictionary, if
    provided, will be loaded into the deflate engine and then that input buffer
-   is dropped for reuse.  Then the input data is compressed into an output
-   buffer that grows in size if necessary to hold the compressed data.  The job
-   is then put into the write job list, sorted by the sequence number.  The
+   is dropped for reuse. Then the input data is compressed into an output
+   buffer that grows in size if necessary to hold the compressed data. The job
+   is then put into the write job list, sorted by the sequence number. The
    compress thread however continues to calculate the check value on the input
    data, either a CRC-32 or Adler-32, possibly in parallel with the write
-   thread writing the output data.  Once that's done, the compress thread drops
+   thread writing the output data. Once that's done, the compress thread drops
    the input buffer and also releases the lock on the check value so that the
-   write thread can combine it with the previous check values.  The compress
+   write thread can combine it with the previous check values. The compress
    thread has then completed that job, and goes to look for another.
 
    All of the compress threads are left running and waiting even after the last
    chunk is processed, so that they can support the next input to be compressed
-   (more than one input file on the command line).  Once pigz is done, it will
+   (more than one input file on the command line). Once pigz is done, it will
    call all the compress threads home (that'll do pig, that'll do).
 
    Before starting to read the input, the main thread launches the write thread
-   so that it is ready pick up jobs immediately.  The compress thread puts the
+   so that it is ready pick up jobs immediately. The compress thread puts the
    write jobs in the list in sequence sorted order, so that the first job in
-   the list is always has the lowest sequence number.  The write thread waits
-   for the next write job in sequence, and then gets that job.  The job still
+   the list is always has the lowest sequence number. The write thread waits
+   for the next write job in sequence, and then gets that job. The job still
    holds its input buffer, from which the write thread gets the input buffer
-   length for use in check value combination.  Then the write thread drops that
-   input buffer to allow its reuse.  Holding on to the input buffer until the
+   length for use in check value combination. Then the write thread drops that
+   input buffer to allow its reuse. Holding on to the input buffer until the
    write thread starts also has the benefit that the read and compress threads
    can't get way ahead of the write thread and build up a large backlog of
-   unwritten compressed data.  The write thread will write the compressed data,
+   unwritten compressed data. The write thread will write the compressed data,
    drop the output buffer, and then wait for the check value to be unlocked by
-   the compress thread.  Then the write thread combines the check value for this
-   chunk with the total check value for eventual use in the trailer.  If this is
+   the compress thread. Then the write thread combines the check value for this
+   chunk with the total check value for eventual use in the trailer. If this is
    not the last chunk, the write thread then goes back to look for the next
-   output chunk in sequence.  After the last chunk, the write thread returns and
-   joins the main thread.  Unlike the compress threads, a new write thread is
-   launched for each input stream.  The write thread writes the appropriate
+   output chunk in sequence. After the last chunk, the write thread returns and
+   joins the main thread. Unlike the compress threads, a new write thread is
+   launched for each input stream. The write thread writes the appropriate
    header and trailer around the compressed data.
 
    The input and output buffers are reused through their collection in pools.
    Each buffer has a use count, which when decremented to zero returns the
-   buffer to the respective pool.  Each input buffer has up to three parallel
+   buffer to the respective pool. Each input buffer has up to three parallel
    uses: as the input for compression, as the data for the check value
-   calculation, and as a dictionary for compression.  Each output buffer has
+   calculation, and as a dictionary for compression. Each output buffer has
    only one use, which is as the output of compression followed serially as
-   data to be written.  The input pool is limited in the number of buffers, so
+   data to be written. The input pool is limited in the number of buffers, so
    that reading does not get way ahead of compression and eat up memory with
-   more input than can be used.  The limit is approximately two times the number
-   of compression threads.  In the case that reading is fast as compared to
+   more input than can be used. The limit is approximately two times the number
+   of compression threads. In the case that reading is fast as compared to
    compression, that number allows a second set of buffers to be read while the
-   first set of compressions are being performed.  The number of output buffers
+   first set of compressions are being performed. The number of output buffers
    is not directly limited, but is indirectly limited by the release of input
    buffers to about the same number.
  */
@@ -324,6 +324,10 @@
 #define _FILE_OFFSET_BITS 64
 
 /* Included headers and expected functions, vars, types, etc */
+#include <stdio.h>      /* fflush(), fprintf(), fputs(), getchar(), putc(),
+                         * puts(), printf(), vasprintf(), stderr, EOF, NULL,
+                         * SEEK_END, size_t, off_t 
+                         */
 #include <stdlib.h>     /* exit(), malloc(), free(), realloc(), atol(), atoi(),
                          * getenv() */
 #include <stdarg.h>     /* va_start(), va_arg(), va_end(), va_list */
@@ -331,8 +335,10 @@
                          * strncpy(), strlen(), strcat(), strrchr(),
                          * strerror() 
                          */
+#include <errno.h>      /* errno, EEXIST */
 #include <assert.h>     /* assert() */
 #include <time.h>       /* ctime(), time(), time_t, mktime() */
+#include <signal.h>     /* signal(), SIGINT */
 #include <sys/types.h>  /* ssize_t */
 #include <sys/stat.h>   /* chmod(), stat(), fstat(), lstat(), struct stat,
                          * S_IFDIR, S_IFLNK, S_IFMT, S_IFREG
@@ -393,6 +399,13 @@
 #error "Need zlib version 1.2.3 or later"
 #endif
 
+#ifndef NOTHREAD
+#include "lib/yarn.h"   /* thread, launch(), join(), join_all(), lock,
+                         * new_lock(), possess(), twist(), wait_for(),
+                         * release(), peek_lock(), free_lock(), yarn_name
+                         */
+#endif
+
 #ifndef NOZOPFLI
 #include "lib/zopfli/deflate.h"    /* ZopfliDeflatePart(),
                                     * ZopfliInitOptions(),
@@ -404,6 +417,9 @@
 /* ===========================================================================
  * Pool of spaces for buffer management
  */
+#define RSYNCBITS 12
+#define RSYNCMASK ((1U << RSYNCBITS) - 1)
+#define RSYNCHIT (RSYNCMASK >> 1)
 
 /* These routines manage a pool of spaces.  Each pool specifies a fixed size
 buffer to be contained in each space.  Each space has a use count, which when
@@ -708,9 +724,7 @@ compress_thread (void *dummy)
 #if ZLIB_VERNUM >= 0x1260
   int bits;                      /* deflate pending bits */
 #endif
-#ifndef NOZOPFLI
-  struct space *temp = NULL;     /* temporary space for zopfli input */
-#endif
+
   int ret;                       /* zlib return code */
   z_stream strm;                 /* deflate stream */
   ball_t err;                    /* error information from throw() */
@@ -719,6 +733,9 @@ compress_thread (void *dummy)
 
   try
   {
+	#ifndef NOZOPFLI
+	struct space *temp = NULL;     /* temporary space for zopfli input */
+	#endif
     /* Initialize the deflate stream for this thread. */
     strm.zfree = ZFREE;
     strm.zalloc = ZALLOC;
@@ -886,40 +903,40 @@ compress_thread (void *dummy)
             else
               {
                 /* Compress len bytes using zopfli, end at byte boundary. */
-                unsigned char bits, *out;
+                unsigned char zop_bits, *out;
                 size_t outsize;
 
                 out = NULL;
                 outsize = 0;
-                bits = 0;
+                zop_bits = 0;
                 ZopfliDeflatePart (&g.zopts, 2, !(left || job->more),
                                    temp->buf, temp->len, temp->len + len,
-                                   &bits, &out, &outsize);
+                                   &zop_bits, &out, &outsize);
                 assert (job->out->len + outsize + 5 <= job->out->size);
                 memcpy (job->out->buf + job->out->len, out, outsize);
                 free (out);
                 job->out->len += outsize;
                 if (left || job->more)
                   {
-                    bits &= 7;
-                    if ((bits & 1) || !g.setdict)
+                    zop_bits &= 7;
+                    if ((zop_bits & 1) || !g.setdict)
                       {
-                        if (bits == 0 || bits > 5)
+                        if (zop_bits == 0 || zop_bits > 5)
                           job->out->buf[job->out->len++] = 0;
                         job->out->buf[job->out->len++] = 0;
                         job->out->buf[job->out->len++] = 0;
                         job->out->buf[job->out->len++] = 0xff;
                         job->out->buf[job->out->len++] = 0xff;
                       }
-                    else if (bits)
+                    else if (zop_bits)
                       {
                         do
                           {
-                            job->out->buf[job->out->len - 1] += 2 << bits;
+                            job->out->buf[job->out->len - 1] += 2 << zop_bits;
                             job->out->buf[job->out->len++] = 0;
-                            bits += 2;
+                            zop_bits += 2;
                           }
-                        while (bits < 8);
+                        while (zop_bits < 8);
                       }
                     if (!g.setdict)
                       {         /* two markers when independent */
@@ -3237,7 +3254,7 @@ process (char *path)
   struct stat st;               /* to get file type and mod time */
   ball_t err;                   /* error information from throw() */
   /* All compressed suffixes for decoding search, in length order. */
-  static char *sufs[] = { ".z", "-z", "_z", ".Z", ".gz", "-gz", ".zz", "-zz",
+  static const char *sufs[] = { ".z", "-z", "_z", ".Z", ".gz", "-gz", ".zz", "-zz",
     ".zip", ".ZIP", ".tgz", NULL
   };
 
@@ -3265,7 +3282,7 @@ process (char *path)
         {
           if (errno == ENOENT && (g.list || g.decode))
             {
-              char **sufx = sufs;
+              const char **sufx = sufs;
               do
                 {
                   if (*sufx == NULL)
@@ -3454,7 +3471,7 @@ process (char *path)
     }
   else
     {
-      char *to = g.inf, *sufx = "";
+      const char *to = g.inf, *sufx = "";
       size_t pre = 0;
 
       /* Select parts of the output file name. */
@@ -3583,7 +3600,7 @@ process (char *path)
   RELEASE (g.outf);
 }
 
-static  char *helptext[] = {
+static const char *helptext[] = {
   "Usage: gzip [OPTION]... [FILE]...",
   "Compress or uncompress FILEs (by default, compress FILES in-place).",
   "",
@@ -3883,9 +3900,9 @@ main (int argc, char **argv)
           g.pipeout = 1;
         }
 
-      /* Error if user has environment variables  */
-      /* This could affect people when they update, so ask eggert */
-      if (getenv ("GZIP") != NULL)
+    /* Error if user has environment variables  */
+    /* This could affect people when they update, so ask eggert */
+    if (getenv ("GZIP") != NULL)
         throw (EINVAL, "Environment variable support removed in"
                       "gzip version x.\nRun `unset GZIP' to fix.");
 
@@ -3938,59 +3955,59 @@ main (int argc, char **argv)
                          if ((size_t)g.procs != j || INBUFS (g.procs) < 1)
                            throw (EINVAL, "too many processes: %s", optarg);
 #ifdef NOTHREAD
-                         if (g.procs > 1)
-                           throw(EINVAL, "compiled without threads");
+                       if (g.procs > 1)
+                         throw(EINVAL, "compiled without threads");
 #endif
-                         break;
-              case 'k':  g.keep = 1;  break;
-              case 'K':  g.form = 2;
-                         g.sufx = ".zip";  break;
-              case 'l':  g.list = 1;  break;
-              case 'L':  fputs (VERSION, stderr); /* TODO: Ask professor what we make this */
-                         fputs ("Copyright (C) 2007-2017 Mark Adler\n", stderr);
-                         fputs ("Subject to the terms of the zlib license.\n", stderr);
-                         fputs ("No warranty is provided or implied.\n", stderr);
-                         exit (0); break;
-              case 'm':  g.headis &= ~0xa;  break;
-              case 'M':  g.headis |= 0xa;  break;
-              case 'n':  g.headis = 0;  break;
-              case 'N':  g.headis = 0xf;  break;
+                       break;
+            case 'k':  g.keep = 1;  break;
+            case 'K':  g.form = 2;  
+                       g.sufx = ".zip";  break;
+            case 'l':  g.list = 1;  break;
+            case 'L':  fputs (VERSION, stderr);
+                       fputs ("Copyright (C) 2007-2017 Mark Adler\n", stderr);
+                       fputs ("Subject to the terms of the zlib license.\n", stderr);
+                       fputs ("No warranty is provided or implied.\n", stderr);
+                       exit (0); break;
+            case 'm':  g.headis &= ~0xa;  break;
+            case 'M':  g.headis |= 0xa;  break;
+            case 'n':  g.headis = 0;  break;
+            case 'N':  g.headis = 0xf;  break;
 #ifndef NOZOPFLI
-              case 'O':  g.zopts.blocksplitting = 0;  break;
-              case 'F':  g.zopts.blocksplittinglast = 1;  break;
-              case 'I':  g.zopts.numiterations = (int)num (optarg);  break; /* optimize iterations */
-              case 'J':  g.zopts.blocksplittingmax = (int)num (optarg);  break; /* max block splits */
+            case 'O':  g.zopts.blocksplitting = 0;  break;
+            case 'F':  g.zopts.blocksplittinglast = 1;  break;
+            case 'I':  g.zopts.numiterations = (int)num (optarg);  break; /* optimize iterations */
+            case 'J':  g.zopts.blocksplittingmax = (int)num (optarg);  break; /* max block splits */
 #endif
-              case 'q':  g.verbosity = 0;  break;
-              case 'r':  g.recurse = 1;  break;
-              case 'R':  g.rsync = 1;  break;
-              case 't':  g.decode = 2;  break;
-              case 'S':  g.sufx = optarg; /* gz suffix */
-                         if (strlen (g.sufx) == 0 || strlen (g.sufx) > 30) /* TODO: DEFINE MAX_SUFFIX AS 30 AND REPLACE */
-                           throw (EINVAL, "invalid suffix '%s'", g.sufx);
-                         break;
-              case 'v': g.verbosity++;  break;
-              case 'V': fputs (VERSION, stderr);
-                        if (g.verbosity > 1)
-                          fprintf (stderr, "zlib %s\n", zlibVersion());
-                        exit (0);
-                        break;
-              case 'Y':  g.sync = 1;  break; /* Synchronous option, not in pdf should be added to docs */
-              case 'z':  g.form = 1;
-                         g.sufx = ".zz";  break;
-              case ':': throw (EINVAL, "option requires an argument -- '%c'\n"
-                                      "Try `gzip --help' for more information",
-                                      optopt);
-                        break;
-              default:  if (optopt) /* invalid short opt */
-                          throw (EINVAL, "invalid option -- '%c'\nTry `gzip "
-                                    "--help' for more information.", optopt);
-                        else /* invalid long opt */
-                          throw (EINVAL, "unrecognized option: '%s'\nTry `gzip"
-                                        "--help' for more information",
-                                        argv[(int)optind - 1]);
-                          break;
-            }
+            case 'q':  g.verbosity = 0;  break;
+            case 'r':  g.recurse = 1;  break;
+            case 'R':  g.rsync = 1;  break;
+            case 't':  g.decode = 2;  break;
+            case 'S':  g.sufx = optarg; /* gz suffix */
+                       if (strlen (g.sufx) == 0 || strlen (g.sufx) > 30) /* TODO: DEFINE MAX_SUFFIX AS 30 AND REPLACE */
+                         throw (EINVAL, "invalid suffix '%s'", g.sufx);
+                       break;
+            case 'v': g.verbosity++;  break;
+            case 'V': fprintf (stderr, "%s\n", VERSION);
+                      if (g.verbosity > 1)
+                        fprintf (stderr, "zlib %s\n", zlibVersion());
+                      exit (0);
+                      break;
+            case 'Y':  g.sync = 1;  break; /* Synchronous option, not in pdf should be added to docs */
+            case 'z':  g.form = 1;  
+                       g.sufx = ".zz";  break;
+            case ':': throw (EINVAL, "option requires an argument -- '%c'\n"
+                                    "Try `gzip --help' for more information",
+                                    optopt);
+                      break;
+            default:  if (optopt) /* invalid short opt */
+                        throw (EINVAL, "invalid option -- '%c'\nTry `gzip " 
+                                  "--help' for more information.", optopt);
+                      else /* invalid long opt */
+                        throw (EINVAL, "unrecognized option: '%s'\nTry `gzip"
+                                      "--help' for more information", 
+                                      argv[(int)optind - 1]); 
+                        break; 
+          }
         }
 
       /* Process command-line filenames. */

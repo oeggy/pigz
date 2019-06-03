@@ -301,15 +301,14 @@ static const unsigned char* GetMatch(const unsigned char* scan,
 
   if (sizeof(size_t) == 8) {
     /* 8 checks at once per array bounds check (size_t is 64-bit). */
-    while (scan < safe_end && *((size_t const*)scan) ==
-                              *((size_t const*)match)) {
+    while (scan < safe_end && *((size_t*)scan) == *((size_t*)match)) {
       scan += 8;
       match += 8;
     }
   } else if (sizeof(unsigned int) == 4) {
     /* 4 checks at once per array bounds check (unsigned int is 32-bit). */
     while (scan < safe_end
-        && *((unsigned int const*)scan) == *((unsigned int const*)match)) {
+        && *((unsigned int*)scan) == *((unsigned int*)match)) {
       scan += 4;
       match += 4;
     }
