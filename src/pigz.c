@@ -3253,7 +3253,7 @@ process (char *path)
   struct stat st;               /* to get file type and mod time */
   ball_t err;                   /* error information from throw() */
   /* All compressed suffixes for decoding search, in length order. */
-  static char *sufs[] = { ".z", "-z", "_z", ".Z", ".gz", "-gz", ".zz", "-zz",
+  static const char *sufs[] = { ".z", "-z", "_z", ".Z", ".gz", "-gz", ".zz", "-zz",
     ".zip", ".ZIP", ".tgz", NULL
   };
 
@@ -3281,7 +3281,7 @@ process (char *path)
         {
           if (errno == ENOENT && (g.list || g.decode))
             {
-              char **sufx = sufs;
+              const char **sufx = sufs;
               do
                 {
                   if (*sufx == NULL)
@@ -3470,7 +3470,7 @@ process (char *path)
     }
   else
     {
-      char *to = g.inf, *sufx = "";
+      const char *to = g.inf, *sufx = "";
       size_t pre = 0;
 
       /* Select parts of the output file name. */
@@ -3599,7 +3599,7 @@ process (char *path)
   RELEASE (g.outf);
 }
 
-static  char *helptext[] = {
+static const char *helptext[] = {
   "Usage: gzip [OPTION]... [FILE]...",
   "Compress or uncompress FILEs (by default, compress FILES in-place).",
   "",

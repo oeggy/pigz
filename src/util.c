@@ -157,7 +157,7 @@ typedef unsigned long crc_t;
 static  struct
 {
   int volatile ret;          /* pigz return code */
-  char *prog;                /* name by which pigz was invoked */
+  const char *prog;                /* name by which pigz was invoked */
   int ind;                   /* input file descriptor */
   int outd;                  /* output file descriptor */
   char *inf;                 /* input file name (allocated) */
@@ -172,10 +172,10 @@ static  struct
   int form;                  /* gzip = 0, zlib = 1, zip = 2 or 3 */
   int magic1;                /* first byte of possible header when decoding */
   int recurse;               /* true to dive down into directory structure */
-  char *sufx;                /* suffix to use (".gz" or user supplied) */
-  char *name;                /* name for gzip or zip header */
-  char *alias;               /* name for zip header when input is stdin */
-  char *comment;             /* comment for gzip or zip header. */
+  const char *sufx;                /* suffix to use (".gz" or user supplied) */
+  const char *name;                /* name for gzip or zip header */
+  const char *alias;               /* name for zip header when input is stdin */
+  const char *comment;             /* comment for gzip or zip header. */
   time_t mtime;              /* time stamp from input file for gzip header */
   int list;                  /* true to list files instead of compress */
   int first;                 /* true if we need to print listing header */
@@ -221,7 +221,7 @@ static  struct
 
 /* Display a complaint with the program name on stderr. */
 static  int
-complain (char *fmt, ...)
+complain (const char *fmt, ...)
 {
   va_list ap;
 
@@ -638,7 +638,7 @@ grow (size_t size)
  * the allocated size of *mem. Return the number of bytes in the result. 
  */
 static  inline size_t
-vmemcpy (char **mem, size_t * size, size_t off, void *cpy, size_t len)
+vmemcpy (char **mem, size_t * size, size_t off,const void *cpy, size_t len)
 {
   size_t need;
 
@@ -665,7 +665,7 @@ vmemcpy (char **mem, size_t * size, size_t off, void *cpy, size_t len)
  * the string plus one. 
  */
 static  inline size_t
-vstrcpy (char **str, size_t * size, size_t off, void *cpy)
+vstrcpy (char **str, size_t * size, size_t off, const void *cpy)
 {
   return vmemcpy (str, size, off, cpy, strlen (cpy) + 1);
 }
