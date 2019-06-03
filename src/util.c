@@ -27,6 +27,7 @@
 
 /* Included headers and expected functions, vars, types, etc */
 #include <config.h>
+#include <time.h>       /* struct tm, time_t, gettimeofday(), localtime() */
 #include <stdio.h>      /* fflush(), fprintf(), fputs(), getchar(), putc(),
                          * puts(), printf(), vasprintf(), stderr, EOF, NULL,
                          * SEEK_END, size_t, off_t 
