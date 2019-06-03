@@ -2289,11 +2289,6 @@ compressed_suffix (char *nm)
   len = strlen (nm);
   suf_len = strlen(g.sufx);
 
-  /* Bypass below code if suffix was set with -S, or unchanged from default */
-  nm_copy += len - suf_len;
-  if (strcmp (nm_copy, g.sufx) == 0)
-    return suf_len;
-
   if (len > 4)
     {
       nm += len - 4;
@@ -2318,6 +2313,11 @@ compressed_suffix (char *nm)
         return 2;
     }
     
+  /* Use above extensions first, then check for -S user extension  */
+  nm_copy += len - suf_len;
+  if (strcmp (nm_copy, g.sufx) == 0)
+    return suf_len;
+
   return 0;
 }
 
@@ -3255,7 +3255,7 @@ process (char *path)
   ball_t err;                   /* error information from throw() */
   /* All compressed suffixes for decoding search, in length order. */
   static const char *sufs[] = { ".z", "-z", "_z", ".Z", ".gz", "-gz", ".zz", "-zz",
-    ".zip", ".ZIP", ".tgz", NULL
+    ".zip", ".ZIP", ".tgz", "user", NULL
   };
 
   /* Open input file with name in, descriptor ind -- set name and mtime. */
@@ -3287,7 +3287,10 @@ process (char *path)
                 {
                   if (*sufx == NULL)
                     break;
-                  vstrcpy (&g.inf, &g.inz, len, *sufx++);
+                  if (strcmp (*sufx,"user") == 0)
+                    vstrcpy (&g.inf, &g.inz, len, g.sufx);
+                  else
+                    vstrcpy (&g.inf, &g.inz, len, *sufx++);
                   errno = 0;
                 }
               while (lstat (g.inf, &st) && errno == ENOENT);
