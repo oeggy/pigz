@@ -724,9 +724,7 @@ compress_thread (void *dummy)
 #if ZLIB_VERNUM >= 0x1260
   int bits;                      /* deflate pending bits */
 #endif
-#ifndef NOZOPFLI
-  struct space *temp = NULL;     /* temporary space for zopfli input */
-#endif
+
   int ret;                       /* zlib return code */
   z_stream strm;                 /* deflate stream */
   ball_t err;                    /* error information from throw() */
@@ -735,6 +733,9 @@ compress_thread (void *dummy)
 
   try
   {
+	#ifndef NOZOPFLI
+	struct space *temp = NULL;     /* temporary space for zopfli input */
+	#endif
     /* Initialize the deflate stream for this thread. */
     strm.zfree = ZFREE;
     strm.zalloc = ZALLOC;
