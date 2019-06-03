@@ -52,7 +52,11 @@ nw="$nw -Wdouble-promotion"
 nw="$nw -Wsuggest-attribute=format"
 nw="$nw -Wsuggest-attribute=const"
 nw="$nw -Wsuggest-attribute=pure"
+nw="$nw -Wsuggest-attribute=noreturn"
 nw="$nw -Wunused-macros"
+AS_CASE([$host],
+      [i?86-*-*], [nw="$nw -Wcast-align"],
+      [x86_64-*-*], [nw="$nw -Wcast-align"])
 
 gl_MANYWARN_ALL_GCC([warnings])
 gl_MANYWARN_COMPLEMENT([warnings], [$warnings], [$nw])
