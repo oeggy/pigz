@@ -457,8 +457,9 @@ log_init (void)
 }
 
 /* Add entry to trace log. */
+__attribute__((format(printf, 1, 2)))
 static  void
-log_add (char *fmt, ...)
+log_add (const char *fmt, ...)
 {
   struct timeval now;
   struct log *me;
