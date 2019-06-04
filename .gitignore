@@ -11,6 +11,8 @@ aclocal.m4
 config*
 lib/.deps/
 lib/.dirstamp
+lib/zlib/.deps/
+lib/zlib/.dirstamp
 lib/zopfli/.deps/
 lib/zopfli/.dirstamp
 lib/stamp-h1
