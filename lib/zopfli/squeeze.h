@@ -30,7 +30,7 @@ solution.
 
 #ifndef ZOPFLI_SQUEEZE_H_
 #define ZOPFLI_SQUEEZE_H_
-
+#include <config.h>
 #include "lz77.h"
 
 /*

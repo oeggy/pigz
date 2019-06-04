@@ -1007,35 +1007,6 @@ crc32z (unsigned long crc, unsigned char const *buf, size_t len)
 /* Compute check value depending on format. */
 #define CHECK(a,b,c) (g.form == 1 ? adler32z(a,b,c) : crc32z(a,b,c))
 
-/* Return the zlib version as an integer, where each component is interpreted
- * as a decimal number and converted to four hexadecimal digits. E.g.
- * '1.2.11.1' -> 0x12b1, or return -1 if the string is not a valid version.
- */
-static  long
-zlib_vernum (void)
-{
-  char const *ver = zlibVersion ();
-  long num = 0;
-  int left = 4;
-  int comp = 0;
-  do
-    {
-      if (*ver >= '0' && *ver <= '9')
-        comp = 10 * comp + *ver - '0';
-      else
-        {
-          num = (num << 4) + (comp > 0xf ? 0xf : comp);
-          left--;
-          if (*ver != '.')
-            break;
-          comp = 0;
-        }
-      ver++;
-    }
-  while (left);
-  return left < 2 ? num << (left << 2) : -1;
-}
-
 /* ===========================================================================
  * Threaded portions of pigz 
  */

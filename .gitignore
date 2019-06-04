@@ -50,6 +50,7 @@ lib/gettext.h
 lib/intprops.h
 lib/limits.in.h
 lib/malloc.c
+lib/math.h
 lib/msvc-inval.c
 lib/msvc-inval.h
 lib/msvc-nothrow.c

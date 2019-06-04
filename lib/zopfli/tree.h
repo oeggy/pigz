@@ -23,7 +23,7 @@ Utilities for creating and using Huffman trees.
 
 #ifndef ZOPFLI_TREE_H_
 #define ZOPFLI_TREE_H_
-
+#include <config.h>
 #include <string.h>
 
 /*
