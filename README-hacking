@@ -1,2 +1,43 @@
-To compile on macOS, after ./bootstrap and ./configure, change line 74 in file 
-lib/pthread.in.h to #include "config.h"
+These notes are only really useful to people trying to work with checked-out
+sources, and aren't all that useful to people trying to distribute or build
+their own copy for personal use.
+Building requires a C99 or better compiler (gcc or clang, preferably).
+
+After cloning, the most basic way to get going is to use:
+
+	./bootstrap; ./configure; make 
+
+to get a working executable in the top-level directory. 
+
+It may be a good idea to do 
+
+	git submodule foreach git pull origin master
+
+to update to the latest gnulib sources before using ./bootstrap.
+
+If you want to track memory usage or use the Trace macro and its variants,
+as well as see masses of verbose warnings, pass `--enable-advanced-debug` 
+to ./configure.
+
+The files lib/try.h and lib/try.c implement exception handling, as you'd expect
+from e.g. Python or Java. It's worth reading lib/try.h to get a feel for how
+they're intended to work before diving into the code.
+
+The copy of zlib included here is the latest from Mark Adler's develop branch
+at https://github.com/madler/zlib (commit 79baebe as of writing this readme)
+with minor modifications to allow it to compile; i.e. #include<config.h> 
+inserted where required. 
+Similarly with zopfli, from https://github.com/google/zopfli master (ef109ddf).
+
+Of course, you could choose to disable those with configure options, though
+with regards to zlib, if a suitable zlib isn't found on your system configure
+will prefer to give you a working build using static linking versus failing or
+a broken build that will produce a useless executable.
+
+Enabling zopfli increases the executable's size by about 50%; as does static
+linking with zlib. Stripped and at default configuration (dynamic linking and 
+with zopfli) the executable is about twice as big as gzip 1.9; without zopfli
+it's a bit smaller than 1.9.
+
+Happy hacking!
+
