@@ -2261,9 +2261,11 @@ more_zip_entries (void)
 static  size_t
 compressed_suffix (char *nm)
 {
-  size_t len;
+  size_t len = strlen (nm);
+  size_t suf_len = strlen (g.sufx);
+  size_t len_cp = len;
+  char *nm_cp = nm;
 
-  len = strlen (nm);
   if (len > 4)
     {
       nm += len - 4;
@@ -2286,6 +2288,14 @@ compressed_suffix (char *nm)
       if (strcmp (nm, ".z") == 0 || strcmp (nm, "-z") == 0 ||
           strcmp (nm, "_z") == 0 || strcmp (nm, ".Z") == 0)
         return 2;
+    }
+
+  /* Always consider the -S suffix last */
+  if(len_cp > suf_len)
+    {
+      nm_cp += len_cp - suf_len;
+      if(strcmp (nm_cp, g.sufx) == 0)
+        return suf_len;
     }
   return 0;
 }
@@ -3223,9 +3233,35 @@ process (char *path)
   struct stat st;               /* to get file type and mod time */
   ball_t err;                   /* error information from throw() */
   /* All compressed suffixes for decoding search, in length order. */
-  static const char *sufs[] = { ".z", "-z", "_z", ".Z", ".gz", "-gz", ".zz", "-zz",
-    ".zip", ".ZIP", ".tgz", NULL
+  static const char *sufs[] = { NULL, ".z", "-z", "_z", ".Z", ".gz", "-gz", ".zz", "-zz",
+    ".zip", ".ZIP", ".tgz", NULL, NULL
   };
+
+  char const **sfix;
+  int suffix_of_builtin = 0;
+  size_t us_len = strlen (g.sufx);
+
+  /* Normally put g.sufx at the start of sufs, the known suffixes, but if it
+     is a suffix of one of them, put it at the end. There is a slight redundancy here
+     as default values for g.sufx will be recognized as suffixes of themselves, leaving
+     an extra copy at the end of the sufs array.
+  */
+
+  for (sfix = sufs + 1; *sfix; sfix++)
+    {
+      size_t suflen = strlen (*sfix);
+      if (us_len < suflen &&
+      (strcmp (g.sufx, *sfix + suflen - us_len) == 0) )
+        {
+          suffix_of_builtin = 1;
+          break;
+        }
+    }
+
+    sufs[suffix_of_builtin
+            ? sizeof sufs / sizeof *sufs - 2
+            : 0] = g.sufx;
+
 
   /* Open input file with name in, descriptor ind -- set name and mtime. */
   if (path == NULL)
@@ -3251,7 +3287,7 @@ process (char *path)
         {
           if (errno == ENOENT && (g.list || g.decode))
             {
-              const char **sufx = sufs;
+              const char **sufx = sufs + suffix_of_builtin;
               do
                 {
                   if (*sufx == NULL)
