@@ -80,3 +80,5 @@ lib/stdlib.h
 lib/string.h
 lib/sys/*
 lib/unistd.h
+tests/*.log
+tests/*.trs
