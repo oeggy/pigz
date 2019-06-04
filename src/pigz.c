@@ -2262,17 +2262,8 @@ static  size_t
 compressed_suffix (char *nm)
 {
   size_t len;
-  size_t suf_len;
-  char *nm_copy = nm;
 
   len = strlen (nm);
-  suf_len = strlen(g.sufx);
-
-  /* Bypass below code if suffix was set with -S, or unchanged from default */
-  nm_copy += len - suf_len;
-  if (strcmp (nm_copy, g.sufx) == 0)
-    return suf_len;
-
   if (len > 4)
     {
       nm += len - 4;
@@ -2296,7 +2287,6 @@ compressed_suffix (char *nm)
           strcmp (nm, "_z") == 0 || strcmp (nm, ".Z") == 0)
         return 2;
     }
-    
   return 0;
 }
 
