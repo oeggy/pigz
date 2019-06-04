@@ -38,7 +38,7 @@ AC_ARG_ENABLE([advanced-debug],
 	       AC_DEFINE([PIGZ_DEBUG]))])
 AC_ARG_WITH([static-zlib],
 	[AS_HELP_STRING([--with-static-zlib],
-		[Use statically-linked zlib instead of linking to system zlib. (default no)])],
+		[Use static zlib instead of trying to dynamically link to system zlib. (default no, yes when cross-compiling)])],
 	[AS_IF([test "x$with_static_zlib" == "xyes"],
 	       AC_CACHE_VAL([gzip_cv_lib_zlib_static], [gzip_cv_lib_zlib_static=yes]))])
 
