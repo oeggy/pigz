@@ -107,3 +107,5 @@ endif
 
 EXTRA_DIST = $(pigz_extra_dist) $(zlib_extra_dist) $(zopfli_extra_dist)
 dist_doc_DATA = README
+clean-local:
+	-git submodule foreach git clean -dfx
