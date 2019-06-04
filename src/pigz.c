@@ -721,9 +721,7 @@ compress_thread (void *dummy)
   unsigned char *next;           /* pointer for blocks, check value data */
   size_t left;                   /* input left to process */
   size_t len;                    /* remaining bytes to compress/check */
-#if ZLIB_VERNUM >= 0x1260
   int bits;                      /* deflate pending bits */
-#endif
 
   int ret;                       /* zlib return code */
   z_stream strm;                 /* deflate stream */
@@ -867,32 +865,23 @@ compress_thread (void *dummy)
                 strm.avail_in = (unsigned) len;
                 if (left || job->more)
                   {
-#if ZLIB_VERNUM >= 0x1260
-                    if (zlib_vernum () >= 0x1260)
-                      {
-                        deflate_engine (&strm, job->out, Z_BLOCK);
+					deflate_engine (&strm, job->out, Z_BLOCK);
 
-                        /* Add enough empty blocks to get to a byte boundary. */
-                        (void) deflatePending (&strm, Z_NULL, &bits);
-                        if ((bits & 1) || !g.setdict)
-                          deflate_engine (&strm, job->out, Z_SYNC_FLUSH);
-                        else if (bits & 7)
-                          {
-                            do
-                              { /* add static empty blocks */
-                                bits = deflatePrime (&strm, 10, 2);
-                                assert (bits == Z_OK);
-                                (void) deflatePending (&strm, Z_NULL, &bits);
-                              }
-                            while (bits & 7);
-                            deflate_engine (&strm, job->out, Z_BLOCK);
-                          }
-                      }
-                    else
-#endif
-                      {
-                        deflate_engine (&strm, job->out, Z_SYNC_FLUSH);
-                      }
+					/* Add enough empty blocks to get to a byte boundary. */
+					(void) deflatePending (&strm, Z_NULL, &bits);
+					if ((bits & 1) || !g.setdict)
+					  deflate_engine (&strm, job->out, Z_SYNC_FLUSH);
+					else if (bits & 7)
+					  {
+						do
+						  { /* add static empty blocks */
+							bits = deflatePrime (&strm, 10, 2);
+							assert (bits == Z_OK);
+							(void) deflatePending (&strm, Z_NULL, &bits);
+						  }
+						while (bits & 7);
+						deflate_engine (&strm, job->out, Z_BLOCK);
+					  }
                     if (!g.setdict)     /* two markers when independent */
                       deflate_engine (&strm, job->out, Z_FULL_FLUSH);
                   }
@@ -1545,35 +1534,25 @@ single_compress (int reset)
           check = CHECK (check, strm->next_in, strm->avail_in);
           if (more || got)
             {
-#if ZLIB_VERNUM >= 0x1260
-              if (zlib_vernum () >= 0x1260)
-                {
-                  int bits;
+			  int bits;
 
-                  DEFLATE_WRITE (Z_BLOCK);
-                  (void) deflatePending (strm, Z_NULL, &bits);
-                  if ((bits & 1) || !g.setdict)
-                    DEFLATE_WRITE (Z_SYNC_FLUSH);
-                  else if (bits & 7)
-                    {
-                      do
-                        {
-                          bits = deflatePrime (strm, 10, 2);
-                          assert (bits == Z_OK);
-                          (void) deflatePending (strm, Z_NULL, &bits);
-                        }
-                      while (bits & 7);
-                      DEFLATE_WRITE (Z_NO_FLUSH);
-                    }
-                }
-              else
-#else
-              {
-                DEFLATE_WRITE (Z_SYNC_FLUSH);
-              }
-#endif
-              if (!g.setdict)   /* two markers when independent */
-                DEFLATE_WRITE (Z_FULL_FLUSH);
+			  DEFLATE_WRITE (Z_BLOCK);
+			  (void) deflatePending (strm, Z_NULL, &bits);
+			  if ((bits & 1) || !g.setdict)
+				DEFLATE_WRITE (Z_SYNC_FLUSH);
+			  else if (bits & 7)
+				{
+				  do
+					{
+					  bits = deflatePrime (strm, 10, 2);
+					  assert (bits == Z_OK);
+					  (void) deflatePending (strm, Z_NULL, &bits);
+					}
+				  while (bits & 7);
+				  DEFLATE_WRITE (Z_NO_FLUSH);
+				}
+		  if (!g.setdict)   /* two markers when independent */
+			DEFLATE_WRITE (Z_FULL_FLUSH);
             }
           else
             DEFLATE_WRITE (Z_FINISH);
@@ -3891,10 +3870,6 @@ main (int argc, char **argv)
 
       /* Set all options to defaults. */
       defaults ();
-
-      /* Check zlib version. */
-      if (zlib_vernum () < 0x1230)
-        throw (EINVAL, "zlib version less than 1.2.3");
 
       /* Create CRC table, in case zlib compiled with dynamic tables. */
       get_crc_table ();  /* !!! new in develop pigz version !!! */
