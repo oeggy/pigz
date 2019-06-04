@@ -32,14 +32,19 @@ AC_ARG_ENABLE([threads],
 
 AC_ARG_ENABLE([advanced-debug],
 	[AS_HELP_STRING([--enable-advanced-debug],
-		[Enable advanced verbose debugging.])],
+		[Enable advanced verbose debugging. (Implies --enable-gcc-warnings)])],
 	[AS_IF([test "x$enable_advanced_debug" != "xno"],
+	       enable_gcc_warnings="yes"
 	       AC_DEFINE([PIGZ_DEBUG]))])
 AC_ARG_WITH([static-zlib],
 	[AS_HELP_STRING([--with-static-zlib],
 		[Use statically-linked zlib instead of linking to system zlib. (default no)])],
 	[AS_IF([test "x$with_static_zlib" == "xyes"],
 	       AC_CACHE_VAL([gzip_cv_lib_zlib_static], [gzip_cv_lib_zlib_static=yes]))])
+
+AC_ARG_ENABLE([gcc-warnings],
+	[AS_HELP_STRING([--enable-gcc-warnings],
+		[Enable verbose GCC warnings.])])
 
 AC_CONFIG_FILES([Makefile lib/Makefile tests/Makefile])
 
@@ -81,28 +86,26 @@ AM_CONDITIONAL([STATIC_ZLIB], [test "$gzip_cv_lib_zlib_static" == "yes"])
 AM_CONDITIONAL([NOZOPFLI], [test "x$enable_zopfli" == "xno"])
 AM_CONDITIONAL([NOTHREAD], [test "x$enable_threads" == "xno"])
 
-dnl why would you not have this. it shouldn't compile anyway.
-dnl AC_FUNC_STRNLEN
-dnl AC_LANG_CONFTEST(
-dnl	[AC_LANG_SOURCE(
-
 gl_INIT
-dnl ignored warnings:
-nw=
-nw="$nw -Wdouble-promotion"
-nw="$nw -Wsuggest-attribute=format"
-nw="$nw -Wsuggest-attribute=const"
-nw="$nw -Wsuggest-attribute=pure"
-nw="$nw -Wsuggest-attribute=noreturn"
-nw="$nw -Wunused-macros"
-AS_CASE([$host],
-      [i?86-*-*], [nw="$nw -Wcast-align"],
-      [x86_64-*-*], [nw="$nw -Wcast-align"])
+if test "$enable_gcc_warnings" == "yes"; then
+	dnl ignored warnings:
+	nw=
+	nw="$nw -Wdouble-promotion"
+	nw="$nw -Wsuggest-attribute=format"
+	nw="$nw -Wsuggest-attribute=const"
+	nw="$nw -Wsuggest-attribute=pure"
+	nw="$nw -Wsuggest-attribute=noreturn"
+	nw="$nw -Wunused-macros"
+	nw="$nw -Wold-style-definition" # zlib for some reason needs to support pre-c89
+	AS_CASE([$host],
+	      [i?86-*-*], [nw="$nw -Wcast-align"],
+	      [x86_64-*-*], [nw="$nw -Wcast-align"])
 
-gl_MANYWARN_ALL_GCC([warnings])
-gl_MANYWARN_COMPLEMENT([warnings], [$warnings], [$nw])
-for w in $warnings; do
-	gl_WARN_ADD([$w])
-done
+	gl_MANYWARN_ALL_GCC([warnings])
+	gl_MANYWARN_COMPLEMENT([warnings], [$warnings], [$nw])
+	for w in $warnings; do
+		gl_WARN_ADD([$w])
+	done
+fi
 AC_PROG_RANLIB
 AC_OUTPUT
