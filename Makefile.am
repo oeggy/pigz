@@ -1,10 +1,5 @@
 SUBDIRS = lib . tests
-AM_CPPFLAGS = -I$(top_srcdir)/lib
-AM_CFLAGS = $(WARN_CFLAGS) $(WERROR_CFLAGS)
 ACLOCAL_AMFLAGS = -I m4
-
-# Tell the linker to omit references to unused shared libraries.
-AM_LDFLAGS = $(IGNORE_UNUSED_LIBRARIES_CFLAGS)
 
 man_MANS = src/pigz.1
 
@@ -61,12 +56,14 @@ zlib_pigz_sources = \
 	lib/zlib/gzguts.h \
 	lib/zlib/gzclose.c \
 	lib/zlib/gzlib.c \
+	lib/zlib/gzread.c \
 	lib/zlib/gzwrite.c \
 	lib/zlib/infback.c \
 	lib/zlib/inffast.h \
 	lib/zlib/inffast.c \
 	lib/zlib/inffixed.h \
 	lib/zlib/inflate.h \
+	lib/zlib/inflate.c \
 	lib/zlib/inftrees.h \
 	lib/zlib/inftrees.c \
 	lib/zlib/trees.h \
@@ -76,10 +73,16 @@ zlib_pigz_sources = \
 	lib/zlib/zutil.h \
 	lib/zlib/zutil.c \
 	lib/zlib/uncompr.c
+pigz_zlib_cppflags = -I$(top_srcdir)/lib/zlib
 endif
 
 pigz_LDADD = $(base_pigz_ldadd) $(thread_pigz_ldadd) $(zopfli_pigz_ldadd)
 pigz_SOURCES = $(base_pigz_sources) $(thread_pigz_sources) $(zopfli_pigz_sources) $(zlib_pigz_sources)
+AM_CPPFLAGS = -I$(top_srcdir)/lib $(pigz_zlib_cppflags)
+AM_CFLAGS = $(WARN_CFLAGS) $(WERROR_CFLAGS)
+# Tell the linker to omit references to unused shared libraries.
+AM_LDFLAGS = $(IGNORE_UNUSED_LIBRARIES_CFLAGS)
+
 
 pigz_extra_dist = \
 	     src/util.c \

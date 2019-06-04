@@ -39,7 +39,7 @@ AC_ARG_WITH([static-zlib],
 	[AS_HELP_STRING([--with-static-zlib],
 		[Use statically-linked zlib instead of linking to system zlib. (default no)])],
 	[AS_IF([test "x$with_static_zlib" == "xyes"],
-	       AC_CACHE_VAL([gzip_cv_lib_zlib_static], [static-zlib=yes]))])
+	       AC_CACHE_VAL([gzip_cv_lib_zlib_static], [gzip_cv_lib_zlib_static=yes]))])
 
 AC_CONFIG_FILES([Makefile lib/Makefile tests/Makefile])
 
@@ -77,7 +77,7 @@ if test "$gzip_cv_lib_zlib_static" == "yes"; then
 else
 	AC_MSG_RESULT([dynamic])
 fi
-AM_CONDITIONAL([STATIC_ZLIB], [test "x$gzip_cv_lib_zlib_static" == "xyes"])
+AM_CONDITIONAL([STATIC_ZLIB], [test "$gzip_cv_lib_zlib_static" == "yes"])
 AM_CONDITIONAL([NOZOPFLI], [test "x$enable_zopfli" == "xno"])
 AM_CONDITIONAL([NOTHREAD], [test "x$enable_threads" == "xno"])
 
