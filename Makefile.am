@@ -81,7 +81,7 @@ pigz_SOURCES = $(base_pigz_sources) $(thread_pigz_sources) $(zopfli_pigz_sources
 AM_CPPFLAGS = -I$(top_srcdir)/lib $(pigz_zlib_cppflags)
 AM_CFLAGS = $(WARN_CFLAGS) $(WERROR_CFLAGS)
 # Tell the linker to omit references to unused shared libraries.
-AM_LDFLAGS = -Wl,--gc-sections $(IGNORE_UNUSED_LIBRARIES_CFLAGS)
+AM_LDFLAGS = -Wl, $(IGNORE_UNUSED_LIBRARIES_CFLAGS)
 
 
 pigz_extra_dist = \
