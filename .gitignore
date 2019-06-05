@@ -32,7 +32,9 @@ lib/arg-nonnull.h
 lib/c++defs.h
 lib/pthread.c
 lib/pthread.in.h
+lib/pthread.h
 lib/sched.in.h
+lib/sched.h
 lib/stddef.in.h
 lib/time.in.h
 lib/warn-on-use.h
