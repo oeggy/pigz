@@ -2285,22 +2285,26 @@ compressed_suffix (char *nm)
       nm += len - 4;
       len = 4;
       if (strcmp (nm, ".zip") == 0 || strcmp (nm, ".ZIP") == 0 ||
-          strcmp (nm, ".tgz") == 0)
+          strcmp (nm, ".tgz") == 0 || strcmp (nm, ".TGZ") == 0 ||
+          strcmp (nm, ".taz") == 0 || strcmp (nm, ".TAZ") == 0 )
         return 4;
     }
   if (len > 3)
     {
       nm += len - 3;
       len = 3;
-      if (strcmp (nm, ".gz") == 0 || strcmp (nm, "-gz") == 0 ||
-          strcmp (nm, ".zz") == 0 || strcmp (nm, "-zz") == 0)
+      if (strcmp (nm, ".gz") == 0 || strcmp (nm, ".GZ") == 0 ||
+          strcmp (nm, "-gz") == 0 || strcmp (nm, "-GZ") == 0 ||
+          strcmp (nm, ".zz") == 0 || strcmp (nm, ".ZZ") == 0 ||
+          strcmp (nm, "-zz") == 0 || strcmp (nm, "-ZZ") == 0 )
         return 3;
     }
   if (len > 2)
     {
       nm += len - 2;
-      if (strcmp (nm, ".z") == 0 || strcmp (nm, "-z") == 0 ||
-          strcmp (nm, "_z") == 0 || strcmp (nm, ".Z") == 0)
+      if (strcmp (nm, ".z") == 0 || strcmp (nm, ".Z") == 0 ||
+          strcmp (nm, "-z") == 0 || strcmp (nm, "-Z") == 0 ||
+          strcmp (nm, "_z") == 0 || strcmp (nm, "_Z") == 0 )
         return 2;
     }
 
@@ -2337,7 +2341,11 @@ show_info (int method, unsigned long check, length_t len, int cont)
     {
       n = strnlen (g.inf, g.inz) - compressed_suffix (g.inf);
       strncpy (tag, g.inf, n > max + 1 ? max + 1 : n);
-      if (strcmp (g.inf + n, ".tgz") == 0 && n < max + 1)
+      if ( ( strcmp (g.inf + n, ".tgz") == 0 ||
+             strcmp (g.inf + n, ".TGZ") == 0 ||
+             strcmp (g.inf + n, ".taz") == 0 ||
+             strcmp (g.inf + n, ".TAZ") == 0 )
+           && n < max + 1)
         strncpy (tag + n, ".tar", max + 1 - n);
     }
   else
@@ -3248,7 +3256,7 @@ process (char *path)
   ball_t err;                   /* error information from throw() */
   /* All compressed suffixes for decoding search, in length order. */
   static const char *sufs[] = { NULL, ".z", "-z", "_z", ".Z", ".gz", "-gz", 
-    ".zz", "-zz", ".zip", ".ZIP", ".tgz", NULL, NULL
+    ".zz", "-zz", ".zip", ".ZIP", ".tgz", ".taz", NULL, NULL
   };
 
   char const **sfix;
@@ -3507,7 +3515,10 @@ process (char *path)
               len = strlen (to);
             }
           /* For -d or -dNn, replace abbreviated suffixes. */
-          else if (strcmp (to + len, ".tgz") == 0)
+          else if (strcmp (to + len, ".tgz") == 0 ||
+                   strcmp (to + len, ".TGZ") == 0 ||
+                   strcmp (to + len, ".taz") == 0 ||
+                   strcmp (to + len, ".TAZ") == 0 )
             sufx = ".tar";
         }
       else
