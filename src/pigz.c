@@ -216,10 +216,10 @@
 
    The default input block size is 128K, but can be changed with the -b option.
    The number of compress threads is set by default to 8, which can be changed
-   using the -p option. Specifying -p 1 avoids the use of threads entirely.
+   using the -j option. Specifying -j 1 avoids the use of threads entirely.
    pigz will try to determine the number of processors in the machine, in which
    case if that number is two or greater, pigz will use that as the default for
-   -p instead of 8.
+   -j instead of 8.
 
    The input blocks, while compressed independently, have the last 32K of the
    previous block loaded as a preset dictionary to preserve the compression
@@ -264,7 +264,7 @@
    which the last 32K will be used as a dictionary (unless -i is specified).
    This sets a lower limit of 32K on 'size'.
 
-   pigz launches up to 'procs' compression threads (see -p). Each compression
+   pigz launches up to 'procs' compression threads (see -j). Each compression
    thread continues to look for jobs in the compression list and perform those
    jobs until instructed to return. When a job is pulled, the dictionary, if
    provided, will be loaded into the deflate engine and then that input buffer

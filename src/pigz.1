@@ -1,16 +1,24 @@
-.TH PIGZ 1 "December 26, 2017"
+.TH GZIP 1 "December 26, 2017"
 .SH NAME
-pigz, unpigz \- compress or expand files
+gzip, gunzip \- compress or expand files
 .SH SYNOPSIS
 .ll +8
-.B pigz
-.RB [ " \-cdfhikKlLmMnNqrRtz0..9,11 " ]
+.B gzip
+.RB [ " \-cdfhikKlLmMnNqrRtvVz0..9,11 " ]
+[
+.B -A
+.I alias
+]
 [
 .B -b
 .I blocksize
 ]
 [
-.B -p
+.B -C
+.I comment
+]
+[
+.B -j
 .I threads
 ]
 [
@@ -22,14 +30,14 @@ pigz, unpigz \- compress or expand files
 ]
 .ll -8
 .br
-.B unpigz
+.B gunzip
 .RB [ " \-cfhikKlLmMnNqrRtz " ]
 [
 .B -b
 .I blocksize
 ]
 [
-.B -p
+.B -j
 .I threads
 ]
 [
@@ -64,9 +72,9 @@ The default input block size is 128K, but can be changed with the
 option.  The number of compress threads is set by default to the number
 of online processors,
 which can be changed using the
-.B -p
+.B -j
 option.  Specifying
-.B -p 1
+.B -j 1
 avoids the use of threads entirely.
 .PP
 The input blocks, while compressed independently, have the last 32K of the
@@ -83,7 +91,7 @@ each with the nine-byte sequence (in hex): 00 00 FF FF 00 00 00 FF FF.
 .PP
 Decompression can't be parallelized, at least not without specially prepared
 deflate streams for that purpose.  As a result,
-.I pigz
+.I gzip
 uses a single thread
 (the main thread) for decompression, but will create three other threads for
 reading, writing, and check calculation, which can speed up decompression
@@ -100,9 +108,9 @@ If no names are provided on the command line, or if "-" is given as a name (but
 not after "--"), then the input is taken from stdin.
 .PP
 Compressed files can be restored to their original form using
-.I pigz -d
+.I gzip -d
 or
-.I unpigz.
+.I gunzip.
 
 .SH OPTIONS
 .TP
@@ -135,6 +143,8 @@ Set compression block size to mmmK (default 128KiB).
 .TP
 .B -c --stdout --to-stdout
 Write all processed output to stdout (won't delete).
+.B -C --comment ccc
+Include the provided comment in the gzip header or zip central file header.
 .TP
 .B -d --decompress --uncompress
 Decompress the compressed input.
@@ -148,6 +158,9 @@ Display a help screen and quit.
 .B -i --independent
 Compress blocks independently for damage recovery.
 .TP
+.B -j --jobs n
+Allow up to n threads (default is the number of online processors)
+.TP
 .B -k --keep
 Do not delete original file after processing.
 .TP
@@ -159,7 +172,7 @@ List the contents of the compressed input.
 .TP
 .B -L --license
 Display the
-.I pigz
+.I gzip
 license and quit.
 .TP
 .B -m --no-time
@@ -183,12 +196,6 @@ the modification time of the compressed file is used (not the current time).
 Store or restore both the file name and the modification time. This is the
 default when compressing.
 .TP
-.B -C --comment ccc
-Include the provided comment in the gzip header or zip central file header.
-.TP
-.B -p --processes n
-Allow up to n processes (default is the number of online processors)
-.TP
 .B -q --quiet --silent
 Print no messages, even on error.
 .TP
@@ -208,7 +215,10 @@ Test the integrity of the compressed input.
 Provide more verbose output.
 .TP
 .B -V --version
-Show the version of pigz. -vV also shows the zlib version.
+Show the version of gzip. -vV also shows the zlib version.
+.TP
+.B -Y  --synchronous
+Force output file write to permanent storage.
 .TP
 .B -z --zlib
 Compress to zlib (.zz) instead of gzip format.
