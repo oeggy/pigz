@@ -3821,13 +3821,13 @@ cut_yarn (int err)
 #endif
 
 static char const short_options[]
-  = "A::b:cC:dfFhiI:j:J:klLmMnNqrRS:tvVYz0123456789";
+  = ":aA:b:cC:dfFhiI:j:J:kKlLmMnNqrRS:tvVYzZ0123456789";
 static struct option const long_options[] =
   {
     { "fast",        0, 0, '1' },
     { "best",        0, 0, '9' },
-    /* {"ascii",    0, 0, 'a}, */
-    { "alias",       1, 0, 'a' },
+    { "ascii",       0, 0, 'a' }, 
+    { "alias",       1, 0, 'A' },
     { "blocksize",   1, 0, 'b' },
     { "stdout",      0, 0, 'c' },
     { "to-stdout",   0, 0, 'c' },
@@ -3862,7 +3862,7 @@ static struct option const long_options[] =
     { "version",     0, 0, 'V' },
     { "synchronous", 0, 0, 'Y' },
     { "zlib",        0, 0, 'z' },
-    /* { "LZW",        0, 0, 'Z' }, */
+    { "LZW",        0, 0, 'Z' }, 
     { NULL, 0, 0, 0 }
   };
 
@@ -3960,6 +3960,9 @@ main (int argc, char **argv)
                           g.level = optc - '0';
                         printf("%d ", g.level);
                         break;
+              case 'a': throw (EINVAL, "invalid option: no ascii conversion: %s",
+                          optopt);
+                        break;
               case 'A': g.alias = optarg; break;
               case 'b': j = num (optarg);
                         g.block = j << 10;                  /* chunk size */
@@ -4040,6 +4043,10 @@ main (int argc, char **argv)
                                             * should be added to docs */
             case 'z':  g.form = 1;  
                        g.sufx = ".zz";  break;
+            case 'Z':  
+                       throw (EINVAL, 
+                        "invalid option: LZW output not supported: %s", optopt);
+                       break;
             case ':':  throw (EINVAL, "option requires an argument -- '%c'\n"
                                     "Try `gzip --help' for more information",
                                     optopt);
