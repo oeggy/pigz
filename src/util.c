@@ -66,7 +66,7 @@ typedef unsigned long crc_t;
                                     */
 #endif
 
-#include "lib/try.h"            /* try, catch, always, throw, drop, punt, ball_t */
+#include "lib/try.h"        /* try, catch, always, throw, drop, punt, ball_t */
       
 /* Prevent end-of-line conversions on MSDOSish operating systems. */
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
@@ -158,31 +158,31 @@ typedef unsigned long crc_t;
 /* Globals (modified by main thread only when it's the only thread). */
 static  struct
 {
-  int volatile ret;          /* pigz return code */
-  const char *prog;                /* name by which pigz was invoked */
-  int ind;                   /* input file descriptor */
-  int outd;                  /* output file descriptor */
-  char *inf;                 /* input file name (allocated) */
-  size_t inz;                /* input file name allocated size */
-  char *outf;                /* output file name (allocated) */
-  int verbosity;             /* 0 = quiet, 1 = normal, 2 = verbose, 3 = trace */
-  int headis;                /* 1 to store name, 2 to store date, 3 both */
-  int pipeout;               /* write output to stdout even if file */
-  int keep;                  /* true to prevent deletion of input file */
-  int force;                 /* true to overwrite, compress links, cat */
-  int sync;                  /* true to flush output file */
-  int form;                  /* gzip = 0, zlib = 1, zip = 2 or 3 */
-  int magic1;                /* first byte of possible header when decoding */
-  int recurse;               /* true to dive down into directory structure */
-  const char *sufx;                /* suffix to use (".gz" or user supplied) */
-  const char *name;                /* name for gzip or zip header */
-  const char *alias;               /* name for zip header when input is stdin */
-  const char *comment;             /* comment for gzip or zip header. */
-  time_t mtime;              /* time stamp from input file for gzip header */
-  int list;                  /* true to list files instead of compress */
-  int first;                 /* true if we need to print listing header */
-  int decode;                /* 0 to compress, 1 to decompress, 2 to test */
-  int level;                 /* compression level */
+  int volatile ret;         /* pigz return code */
+  const char *prog;         /* name by which pigz was invoked */
+  int ind;                  /* input file descriptor */
+  int outd;                 /* output file descriptor */
+  char *inf;                /* input file name (allocated) */
+  size_t inz;               /* input file name allocated size */
+  char *outf;               /* output file name (allocated) */
+  int verbosity;            /* 0 = quiet, 1 = normal, 2 = verbose, 3 = trace */
+  int headis;               /* 1 to store name, 2 to store date, 3 both */
+  int pipeout;              /* write output to stdout even if file */
+  int keep;                 /* true to prevent deletion of input file */
+  int force;                /* true to overwrite, compress links, cat */
+  int sync;                 /* true to flush output file */
+  int form;                 /* gzip = 0, zlib = 1, zip = 2 or 3 */
+  int magic1;               /* first byte of possible header when decoding */
+  int recurse;              /* true to dive down into directory structure */
+  const char *sufx;         /* suffix to use (".gz" or user supplied) */
+  const char *name;         /* name for gzip or zip header */
+  const char *alias;        /* name for zip header when input is stdin */
+  const char *comment;      /* comment for gzip or zip header. */
+  time_t mtime;             /* time stamp from input file for gzip header */
+  int list;                 /* true to list files instead of compress */
+  int first;                /* true if we need to print listing header */
+  int decode;               /* 0 to compress, 1 to decompress, 2 to test */
+  int level;                /* compression level */
 #ifndef NOZOPFLI
   ZopfliOptions zopts;       /* zopfli compression options */
 #endif
@@ -826,11 +826,13 @@ put_header (void)
                  2, (val_t) 45, /* version needed to extract (4.5) */
                  2, (val_t) 8,  /* flags: data descriptor follows data */
                  2, (val_t) 8,  /* deflate */
-                 4, (val_t) time2dos (g.mtime), 4, (val_t) 0,   /* crc (not here) */
+                 4, (val_t) time2dos (g.mtime), 4, (val_t) 0,   /* crc (not 
+                                                                 * here) */
                  4, (val_t) LOW32,      /* compressed length (not here) */
                  4, (val_t) LOW32,      /* uncompressed length (not here) */
-                 2, (val_t) (strlen (g.name == NULL ? g.alias : g.name)),       /* name len */
-                 2, (val_t) 29, /* length of extra field (see below) */
+                 2, (val_t) (strlen (g.name == NULL ? g.alias : 
+                  g.name)),             /* name len */
+                 2, (val_t) 29,         /* length of extra field (see below) */
                  0);
 
       /* Write file name (use g.alias for stdin). */
@@ -838,14 +840,15 @@ put_header (void)
                      strlen (g.name == NULL ? g.alias : g.name));
 
       /* Write Zip64 and extended timestamp extra field blocks (29 bytes). */
-      len += put (g.outd, 2, (val_t) 0x0001, /* Zip64 extended information ID */
-                  2, (val_t) 16,        /* number of data bytes in this block */
-                  8, (val_t) 0,         /* uncompressed length (not here) */
-                  8, (val_t) 0,         /* compressed length (not here) */
-                  2, (val_t) 0x5455,    /* extended timestamp ID */
-                  2, (val_t) 5,         /* number of data bytes in this block */
-                  1, (val_t) 1,         /* flag presence of mod time */
-                  4, (val_t) g.mtime,   /* mod time */
+      len += put (g.outd, 2, (val_t) 0x0001, /* Zip64 extended information ID 
+                                              */
+                  2, (val_t) 16,       /* number of data bytes in this block */
+                  8, (val_t) 0,        /* uncompressed length (not here) */
+                  8, (val_t) 0,        /* compressed length (not here) */
+                  2, (val_t) 0x5455,   /* extended timestamp ID */
+                  2, (val_t) 5,        /* number of data bytes in this block */
+                  1, (val_t) 1,        /* flag presence of mod time */
+                  4, (val_t) g.mtime,  /* mod time */
                   0);
     }
   else if (g.form)
@@ -854,15 +857,23 @@ put_header (void)
         complain ("can't store comment in zlib format -- ignoring");
       unsigned head;
       head = (0x78 << 8) +      /* deflate, 32K window */
-        (g.level >= 9 ? 3 << 6 : g.level == 1 ? 0 << 6 : g.level >= 6 || g.level == Z_DEFAULT_COMPRESSION ? 1 << 6 : 2 << 6);   /* optional compression level clue */
+        (g.level >= 9 ? 3 << 6 : 
+          g.level == 1 ? 0 << 6 : 
+          g.level >= 6 || g.level == Z_DEFAULT_COMPRESSION ? 1 << 6 : 
+          2 << 6);   /* optional compression level clue */
       head += 31 - (head % 31); /* make it a multiple of 31 */
-      len = put (g.outd, -2, (val_t) head,      /* zlib format uses big-endian order */
-                 0);
+      len = put (g.outd, -2, (val_t) head,      
+                 0);            /* zlib format uses big-endian order */
     }
   else
     {                           /* gzip */
-      len = put (g.outd, 1, (val_t) 31, 1, (val_t) 139, 1, (val_t) 8,   /* deflate */
-                 1, (val_t) ((g.name != NULL ? 8 : 0) + (g.comment != NULL ? 16 : 0)), 4, (val_t) g.mtime, 1, (val_t) (g.level >= 9 ? 2 : g.level == 1 ? 4 : 0), 1, (val_t) 3,  /* unix */
+      len = put (g.outd, 1, (val_t) 31, 1, (val_t) 139, 1, 
+                 (val_t) 8, /* deflate */
+                 1, (val_t) ((g.name != NULL ? 8 : 0) + 
+                 (g.comment != NULL ? 16 : 0)), 4, 
+                 (val_t) g.mtime, 1, 
+                 (val_t) (g.level >= 9 ? 2 : g.level == 1 ? 4 : 0), 1,
+                 (val_t) 3,  /* unix */
                  0);
       if (g.name != NULL)
         len += writen (g.outd, g.name, strlen (g.name) + 1);
@@ -894,23 +905,36 @@ put_trailer (length_t ulen, length_t clen, unsigned long check, length_t head)
 
       /* Write central file header. */
       length_t cent = put (g.outd,
-                           4, (val_t) 0x02014b50,  /* central header signature */
-                           1, (val_t) 45,       /* made by 4.5 for Zip64 V1 end record */
-                           1, (val_t) 255,      /* ignore external attributes */
-                           2, (val_t) 45,       /* version needed to extract (4.5) */
-                           2, (val_t) 8,        /* data descriptor is present */
-                           2, (val_t) 8,        /* deflate */
+                           4, (val_t) 0x02014b50, /* central header 
+                                                   * signature */
+                           1, (val_t) 45,         /* made by 4.5 for Zip64 V1 
+                                                   * end record */
+                           1, (val_t) 255,        /* ignore external 
+                                                   * attributes */
+                           2, (val_t) 45,         /* version needed to extract
+                                                   * (4.5) */
+                           2, (val_t) 8,          /* data descriptor is 
+                                                   * present */
+                           2, (val_t) 8,          /* deflate */
                            4, (val_t) time2dos (g.mtime),
-                           4, (val_t) check,    /* crc */
-                           4, (val_t) (zip64 ? LOW32 : clen),   /* compressed length */
-                           4, (val_t) (zip64 ? LOW32 : ulen),   /* uncompressed length */
-                           2, (val_t) (strlen (g.name == NULL ? g.alias : g.name)),     /* name len */
-                           2, (val_t) (zip64 ? 29 : 9), /* extra field size (see below) */
-                           2, (val_t) (g.comment == NULL ? 0 : strlen (g.comment)),     /* comment */
-                           2, (val_t) 0,        /* disk number 0 */
-                           2, (val_t) 0,        /* internal file attributes */
-                           4, (val_t) 0,        /* external file attributes (ignored) */
-                           4, (val_t) 0,        /* offset of local header */
+                           4, (val_t) check,      /* crc */
+                           4, (val_t) (zip64 ? LOW32 : clen),  /* compressed 
+                                                                * length */
+                           4, (val_t) (zip64 ? LOW32 : ulen),  /* uncompressed
+                                                                * length */
+                           2, (val_t) (strlen (g.name == NULL ? g.alias : 
+                            g.name)),                          /* name len */
+                           2, (val_t) (zip64 ? 29 : 9),        /* extra field 
+                                                                * size 
+                                                                * (see below) 
+                                                                */
+                           2, (val_t) (g.comment == NULL ? 0 : 
+                            strlen (g.comment)), /* comment */
+                           2, (val_t) 0,         /* disk number 0 */
+                           2, (val_t) 0,         /* internal file attributes */
+                           4, (val_t) 0,         /* external file attributes 
+                                                  * (ignored) */
+                           4, (val_t) 0,         /* offset of local header */
                            0);
 
       /* Write file name (use g.alias for stdin). */
@@ -919,17 +943,20 @@ put_trailer (length_t ulen, length_t clen, unsigned long check, length_t head)
 
       /* Write Zip64 extra field block (20 bytes). */
       if (zip64)
-        cent += put (g.outd, 2, (val_t) 0x0001, /* Zip64 extended information ID */
-                     2, (val_t) 16,     /* number of data bytes in this block */
+        cent += put (g.outd, 2, (val_t) 0x0001, /* Zip64 extended information 
+                                                 * ID */
+                     2, (val_t) 16,     /* number of data bytes in this block 
+                                         */
                      8, (val_t) ulen,   /* uncompressed length */
                      8, (val_t) clen,   /* compressed length */
                      0);
 
       /* Write extended timestamp extra field block (9 bytes). */
-      cent += put (g.outd, 2, (val_t) 0x5455, /* extended timestamp signature */
-                   2, (val_t) 5,        /* number of data bytes in this block */
-                   1, (val_t) 1,        /* flag presence of mod time */
-                   4, (val_t) g.mtime,  /* mod time */
+      cent += put (g.outd, 2, (val_t) 0x5455, /* extended timestamp signature 
+                                               */
+                   2, (val_t) 5,       /* number of data bytes in this block */
+                   1, (val_t) 1,       /* flag presence of mod time */
+                   4, (val_t) g.mtime, /* mod time */
                    0);
 
       /* Write comment, if requested. */
@@ -944,7 +971,8 @@ put_trailer (length_t ulen, length_t clen, unsigned long check, length_t head)
       if (zip64)
         {
           /* Write Zip64 end of central directory record and locator. */
-          put (g.outd, 4, (val_t) 0x06064b50, /* Zip64 end of central dir sig */
+          put (g.outd, 4, (val_t) 0x06064b50, /* Zip64 end of central dir sig 
+                                               */
                8, (val_t) 44,   /* size of the remainder of this record */
                2, (val_t) 45,   /* version made by */
                2, (val_t) 45,   /* version needed to extract */
@@ -962,7 +990,8 @@ put_trailer (length_t ulen, length_t clen, unsigned long check, length_t head)
         }
 
       /* Write end of central directory record. */
-      put (g.outd, 4, (val_t) 0x06054b50, /* end of central directory signature */
+      put (g.outd, 4, (val_t) 0x06054b50, /* end of central directory 
+                                           * signature */
            2, (val_t) 0,        /* number of this disk */
            2, (val_t) 0,        /* disk with start of central directory */
            2, (val_t) (zip64 ? 0xffff : 1),     /*entries on this disk */
