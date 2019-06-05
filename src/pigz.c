@@ -3821,7 +3821,7 @@ cut_yarn (int err)
 #endif
 
 static char const short_options[]
-  = ":b:cC:dfFhiI:j:J:klLmMnNqrRS:tvVYz0123456789";
+  = ":b:cdfFhiI:j:J:klLmMnNqrRS:tvVYz0123456789";
 static struct option const long_options[] =
   {
     { "fast",        0, 0, '1' },
@@ -3830,7 +3830,6 @@ static struct option const long_options[] =
     { "blocksize",   1, 0, 'b' },
     { "stdout",      0, 0, 'c' },
     { "to-stdout",   0, 0, 'c' },
-    { "complevel",   1, 0, 'C' },
     { "decompress",  0, 0, 'd' },
     { "uncompress",  0, 0, 'd' },
     { "force",       0, 0, 'f' },
