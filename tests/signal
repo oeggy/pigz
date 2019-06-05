@@ -1,28 +1,33 @@
 #! /bin/sh
 # Test signal handling for the gzip
 
-. "${srcdir=.}/init.sh"; path_prepend_ ..
-
-gzip="pigz"
+gzip="gzip"
 pid=''
 fail=0
 filename="signal-segv"
 
-head -c 20M </dev/urandom >${filename}
+. "${srcdir=.}/init.sh"; path_prepend_ ..
 
-cp ${filename} "${filename}1" || fail=1
+head -c 20971520 </dev/urandom >${filename}
 
 for sig in 1 2 13 15 24 25
 do
-  cp ${filename} "${filename}1" || fail=1
-  ${gzip} "${filename}1" &
+  cp ${filename} "${filename}${sig}" || fail=1
+done
+
+for sig in 1 2 13 15 24 25
+do
+  ${gzip} "${filename}${sig}" &
   pid=$!
   test -n ${pid} || fail=1
   kill -${sig} ${pid} || fail=1
-  pgrep -c ${pid} && fail=1
-  test -f "${filename}1" || fail=1
-  test -f "${filename}1.gz" && fail=1
-  compare ${filename} "${filename}1" || fail=1
+  test -f "${filename}${sig}" || fail=1
+  test -f "${filename}${sig}.gz" && fail=1
+  pgrep ${gzip} && fail=1
+  diff ${filename} "${filename}${sig}" || fail=1
+  rm -f "${filename}${sig}"
 done
+
+rm -f ${filename}
 
 Exit ${fail}
