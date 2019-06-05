@@ -258,7 +258,7 @@
 
 /* If pthreads are used, uncomment this include to make try thread-safe. */
 #ifndef NOTHREAD
-#  include <pthread.h>
+#include <pthread.h>
 #endif
 
 /* The exposed names can be changed here. */
@@ -278,18 +278,20 @@
    must start with an int code.  If it is customized, the try_throw_() function
    in try.c must also be updated accordingly.  As an example, why could be a
    structure with information for use in the catch block. */
-typedef struct {
-    int code;           /* integer code (required) */
-    int free;           /* if true, the message string was allocated */
-    char *why;          /* informational string or NULL */
+typedef struct
+{
+  int code;			/* integer code (required) */
+  int free;			/* if true, the message string was allocated */
+  char *why;			/* informational string or NULL */
 } try_ball_t_;
 
 /* Element in the global try stack (a linked list). */
 typedef struct try_s_ try_t_;
-struct try_s_ {
-    jmp_buf env;        /* state information for longjmp() to jump back */
-    try_ball_t_ ball;   /* data passed from the throw() */
-    try_t_ *next;       /* link to the next enclosing try_t, or NULL */
+struct try_s_
+{
+  jmp_buf env;			/* state information for longjmp() to jump back */
+  try_ball_t_ ball;		/* data passed from the throw() */
+  try_t_ *next;			/* link to the next enclosing try_t, or NULL */
 };
 
 /* Global try stack.  try.c must be compiled and linked to provide the stack
@@ -299,18 +301,18 @@ struct try_s_ {
    threads will fail with an assert, by virtue of reaching the end of the
    stack. */
 #ifdef PTHREAD_ONCE_INIT
-    extern pthread_key_t try_key_;
-    void try_setup_(void);
-#   define try_stack_ ((try_t_ *)pthread_getspecific(try_key_))
-#   define try_stack_set_(next) \
+extern pthread_key_t try_key_;
+void try_setup_ (void);
+#define try_stack_ ((try_t_ *)pthread_getspecific(try_key_))
+#define try_stack_set_(next) \
         do { \
             int try_ret_ = pthread_setspecific(try_key_, next); \
             assert(try_ret_ == 0 && "try: pthread_setspecific() failed"); \
         } while (0)
 #else /* !PTHREAD_ONCE_INIT */
-    extern try_t_ *try_stack_;
-#   define try_setup_()
-#   define try_stack_set_(next) try_stack_ = (next)
+extern try_t_ *try_stack_;
+#define try_setup_()
+#define try_stack_set_(next) try_stack_ = (next)
 #endif /* PTHREAD_ONCE_INIT */
 
 /* Try a block.  The block should follow the invocation of try enclosed in { }.
@@ -418,7 +420,7 @@ struct try_s_ {
    to make use of any arguments after the 0 anyway.
 
    try.c must be compiled and linked to provide the try_throw_() function. */
-void try_throw_(int code, const char *fmt, ...);
+void try_throw_ (int code, const char *fmt, ...);
 #define TRY_THROW_(...) try_throw_(__VA_ARGS__, NULL)
 
 /* Retry the try block.  This will start over at the beginning of the try
