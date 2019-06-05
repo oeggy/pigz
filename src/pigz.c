@@ -3821,15 +3821,17 @@ cut_yarn (int err)
 #endif
 
 static char const short_options[]
-  = ":b:cdfFhiI:j:J:klLmMnNqrRS:tvVYz0123456789";
+  = "A::b:cC:dfFhiI:j:J:klLmMnNqrRS:tvVYz0123456789";
 static struct option const long_options[] =
   {
     { "fast",        0, 0, '1' },
     { "best",        0, 0, '9' },
     /* {"ascii",    0, 0, 'a}, */
+    { "alias",       1, 0, 'a' },
     { "blocksize",   1, 0, 'b' },
     { "stdout",      0, 0, 'c' },
     { "to-stdout",   0, 0, 'c' },
+    { "comment",     1, 0, 'C' },
     { "decompress",  0, 0, 'd' },
     { "uncompress",  0, 0, 'd' },
     { "force",       0, 0, 'f' },
@@ -3958,6 +3960,7 @@ main (int argc, char **argv)
                           g.level = optc - '0';
                         printf("%d ", g.level);
                         break;
+              case 'A': g.alias = optarg; break;
               case 'b': j = num (optarg);
                         g.block = j << 10;                  /* chunk size */
                         if (g.block < DICT)
@@ -3975,6 +3978,7 @@ main (int argc, char **argv)
                                         "information.", optarg);
                         break;
               case 'c':  g.pipeout = 1;  break;
+              case 'C':  g.comment = optarg; break;
               case 'd':  if (!g.decode)
                            g.headis >>= 2;
                          g.decode = 1;  break;
