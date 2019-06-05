@@ -1,5 +1,5 @@
 AC_PREREQ([2.65])
-AC_INIT([pigz], m4_esyscmd_s([git describe --dirty]))
+AC_INIT([pigz], m4_esyscmd_s([build-aux/git-version-gen .tarball-version]))
 AC_CONFIG_SRCDIR(src/pigz.c)
 AC_CONFIG_LIBOBJ_DIR([lib])
 AC_CONFIG_MACRO_DIR([m4])

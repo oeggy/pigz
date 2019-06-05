@@ -3696,8 +3696,8 @@ help (void)
   if (g.verbosity == 0)
     return;
   for (n = 0; n < (int) (sizeof (helptext) / sizeof (char *)); n++)
-    fprintf (stderr, "%s\n", helptext[n]);
-  fflush (stderr);
+    fprintf (stdout, "%s\n", helptext[n]);
+  fflush (stdout);
   exit (0);
 }
 
@@ -3988,12 +3988,10 @@ main (int argc, char **argv)
             case 'K':  g.form = 2;  
                        g.sufx = ".zip";  break;
             case 'l':  g.list = 1;  break;
-            case 'L':  fputs (VERSION, stderr);
-                       fputs ("Copyright (C) 2007-2017 Mark Adler\n", stderr);
-                       fputs ("Subject to the terms of the zlib license.\n", 
-                        stderr);
-                       fputs ("No warranty is provided or implied.\n", 
-                        stderr);
+            case 'L':  fprintf (stdout, "%s %s\n" , g.prog, VERSION);
+                       fprintf (stdout, "Copyright (C) 2007-2017 Mark Adler\n");
+                       fprintf (stdout, "Subject to the terms of the zlib license.\n");
+                       fprintf (stdout, "No warranty is provided or implied.\n");
                        exit (0); break;
             case 'm':  g.headis &= ~0xa;  break;
             case 'M':  g.headis |= 0xa;  break;
@@ -4017,9 +4015,9 @@ main (int argc, char **argv)
                          throw (EINVAL, "invalid suffix '%s'", g.sufx);
                        break;
             case 'v': g.verbosity++;  break;
-            case 'V': fprintf (stderr, "%s\n", VERSION);
+            case 'V': fprintf (stdout, "%s %s\n", g.prog, VERSION);
                       if (g.verbosity > 1)
-                        fprintf (stderr, "zlib %s\n", zlibVersion());
+                        fprintf (stdout, "zlib %s\n", zlibVersion());
                       exit (0);
                       break;
             case 'Y':  g.sync = 1;  break; /* Synchronous option, not in pdf 
