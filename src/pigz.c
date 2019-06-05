@@ -3840,6 +3840,7 @@ static struct option const long_options[] =
     { "jobs",        1, 0, 'j' },
     { "maxsplits",   1, 0, 'J' },
     { "keep",        0, 0, 'k' },
+    { "zip",         0, 0, 'K' },
     { "list",        0, 0, 'l' },
     { "license",     0, 0, 'L' },
     { "no-time",     0, 0, 'm' },
@@ -4019,26 +4020,26 @@ main (int argc, char **argv)
             case 'q':  g.verbosity = 0;  break;
             case 'r':  g.recurse = 1;  break;
             case 'R':  g.rsync = 1;  break;
-            case 't':  g.decode = 2;  break;
             case 'S':  g.sufx = optarg; /* gz suffix */
                        if (strlen (g.sufx) == 0 || strlen (g.sufx) > 30) 
                        /* TODO: DEFINE MAX_SUFFIX AS 30 AND REPLACE */
                          throw (EINVAL, "invalid suffix '%s'", g.sufx);
                        break;
-            case 'v': g.verbosity++;  break;
-            case 'V': fprintf (stdout, "%s %s\n", g.prog, VERSION);
-                      if (g.verbosity > 1)
-                        fprintf (stdout, "zlib %s\n", zlibVersion());
-                      exit (0);
-                      break;
+            case 't':  g.decode = 2;  break;
+            case 'v':  g.verbosity++;  break;
+            case 'V':  fprintf (stdout, "%s %s\n", g.prog, VERSION);
+                       if (g.verbosity > 1)
+                         fprintf (stdout, "zlib %s\n", zlibVersion());
+                       exit (0);
+                       break;
             case 'Y':  g.sync = 1;  break; /* Synchronous option, not in pdf 
                                             * should be added to docs */
             case 'z':  g.form = 1;  
                        g.sufx = ".zz";  break;
-            case ':': throw (EINVAL, "option requires an argument -- '%c'\n"
+            case ':':  throw (EINVAL, "option requires an argument -- '%c'\n"
                                     "Try `gzip --help' for more information",
                                     optopt);
-                      break;
+                       break;
             default:  if (optopt) /* invalid short opt */
                         throw (EINVAL, "invalid option -- '%c'\nTry `gzip " 
                                   "--help' for more information.", optopt);
@@ -4046,7 +4047,7 @@ main (int argc, char **argv)
                         throw (EINVAL, "unrecognized option: '%s'\nTry `gzip"
                                       "--help' for more information", 
                                       argv[(int)optind - 1]); 
-                        break; 
+                       break; 
           }
         }
 
