@@ -1,10 +1,10 @@
 #! /bin/sh
-# Test performance of gzip and pigz
+# Test performance of gzip
 
 . "${srcdir=.}/init.sh"; path_prepend_ ..
 
 gzip="./gzip"
-gzippier="../pigz"
+gzippier="../gzip"
 filename="1GB.bin"
 fail=0
 

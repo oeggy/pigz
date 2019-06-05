@@ -240,7 +240,7 @@ complain (const char *fmt, ...)
   return 0;
 }
 
-#ifdef PIGZ_DEBUG
+#ifdef GZIP_DEBUG
 
 /* Memory tracking. */
 
@@ -394,7 +394,7 @@ zlib_free (voidpf opaque, voidpf address)
 #define ZALLOC zlib_alloc
 #define ZFREE zlib_free
 
-#else /* !PIGZ_DEBUG */
+#else /* !GZIP_DEBUG */
 
 #define REALLOC realloc
 #define FREE free
@@ -414,7 +414,7 @@ alloc (void *ptr, size_t size)
   return ptr;
 }
 
-#ifdef PIGZ_DEBUG
+#ifdef GZIP_DEBUG
 
 /* Logging. */
 
@@ -580,7 +580,7 @@ log_dump (void)
         } \
     } while (0)
 
-#else /* !PIGZ_DEBUG */
+#else /* !GZIP_DEBUG */
 
 #define log_dump()
 #define Trace(x)

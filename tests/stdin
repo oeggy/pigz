@@ -19,7 +19,7 @@
 
 . "${srcdir=.}/init.sh"; path_prepend_ ..
 
-gzip="pigz"
+gzip="gzip"
 
 printf a | ${gzip} > in || framework_failure_
 printf aaa > exp || framework_failure_

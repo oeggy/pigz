@@ -356,7 +356,7 @@
 #include <limits.h>     /* UINT_MAX, INT_MAX  */
 #include <getopt.h>     /* getopt_long  */
 
-#ifdef PIGZ_DEBUG
+#ifdef GZIP_DEBUG
 #if defined(__APPLE__)
 #include <malloc/malloc.h>
 #define MALLOC_SIZE(p) malloc_size(p)
@@ -3684,7 +3684,7 @@ static const char *helptext[] = {
   "  -R, --rsyncable      Make rsync-friendly archive",
   "  -S, --suffix=SUF     Use suffix SUF on compressed files",
   "  -t, --test           Test compressed file integrity",
-#ifdef PIGZ_DEBUG
+#ifdef GZIP_DEBUG
   "  -v, --verbose        Provide more verbose output (-vv to debug)",
 #else
   "  -v, --verbose        Verbose mode",
@@ -3895,7 +3895,7 @@ main (int argc, char **argv)
       /* Save pointer to program name for error messages. */
       p = strrchr (argv[0], '/');
       p = p == NULL ? argv[0] : p + 1;
-      g.prog = *p ? p : "pigz";
+      g.prog = *p ? p : "gzip";
 
       /* Prepare for interrupts and logging. */
       signal (SIGINT, cut_short);
@@ -3903,7 +3903,7 @@ main (int argc, char **argv)
       yarn_prefix = g.prog;       /* prefix for yarn error messages */
       yarn_abort = cut_yarn;      /* call on thread error */
 #endif
-#ifdef PIGZ_DEBUG
+#ifdef GZIP_DEBUG
       gettimeofday (&start, NULL);    /* starting time for log entries */
       log_init ();                    /* initialize logging */
 #endif
@@ -3918,7 +3918,7 @@ main (int argc, char **argv)
        * ENSURE WE ACCEPT zcat, pcat, gcat, and gzcat 
        * decompress if named "unpigz" or "gunzip", to stdout if "*cat" 
        */
-      if (strcmp (g.prog, "unpigz") == 0 || strcmp (g.prog, "gunzip") == 0)
+      if (strcmp (g.prog, "gunzip") == 0)
         {
           if (!g.decode)
             g.headis >>= 2;
@@ -3949,7 +3949,7 @@ main (int argc, char **argv)
         {
           switch (optc)
             {
-              /* Z and a are NOT supported by pigz! */
+              /* Z and a are NOT supported by gzip! */
               case '0': case '1': case '2': case '3': case '4':
               case '5': case '6': case '7': case '8': case '9':
                         if (g.level == 1 && (optc - '0') == 1)

@@ -1,26 +1,26 @@
 SUBDIRS = lib . tests
 ACLOCAL_AMFLAGS = -I m4
 
-man_MANS = src/pigz.1
+man_MANS = src/gzip.1
 
-bin_PROGRAMS = pigz
-base_pigz_ldadd = $(LIBOBJS)
-base_pigz_sources = \
+bin_PROGRAMS = gzip
+base_gzip_ldadd = $(LIBOBJS)
+base_gzip_sources = \
 	       $(man_MANS) \
-	       src/pigz.c \
+	       src/gzip.c \
 	       lib/try.c \
 	       lib/try.h
 
 if !NOTHREAD
-thread_pigz_sources = \
+thread_gzip_sources = \
 	       lib/yarn.c \
 	       lib/yarn.h
 
-thread_pigz_ldadd = $(LIB_PTHREAD)
+thread_gzip_ldadd = $(LIB_PTHREAD)
 endif
 
 if !NOZOPFLI
-zopfli_pigz_sources = \
+zopfli_gzip_sources = \
 	       lib/zopfli/blocksplitter.c \
 	       lib/zopfli/blocksplitter.h \
 	       lib/zopfli/cache.c \
@@ -42,11 +42,11 @@ zopfli_pigz_sources = \
 	       lib/zopfli/util.h \
 	       lib/zopfli/zopfli.h
 
-zopfli_pigz_ldadd = -lm
+zopfli_gzip_ldadd = -lm
 endif
 
 if STATIC_ZLIB
-zlib_pigz_sources = \
+zlib_gzip_sources = \
 	lib/zlib/adler32.c \
 	lib/zlib/compress.c \
 	lib/zlib/crc32.h \
@@ -73,26 +73,26 @@ zlib_pigz_sources = \
 	lib/zlib/zutil.h \
 	lib/zlib/zutil.c \
 	lib/zlib/uncompr.c
-pigz_zlib_cppflags = -I$(top_srcdir)/lib/zlib
+gzip_zlib_cppflags = -I$(top_srcdir)/lib/zlib
 endif
 
-pigz_LDADD = $(base_pigz_ldadd) $(thread_pigz_ldadd) $(zopfli_pigz_ldadd)
-pigz_SOURCES = $(base_pigz_sources) $(thread_pigz_sources) $(zopfli_pigz_sources) $(zlib_pigz_sources)
-AM_CPPFLAGS = -I$(top_srcdir)/lib $(pigz_zlib_cppflags)
+gzip_LDADD = $(base_gzip_ldadd) $(thread_gzip_ldadd) $(zopfli_gzip_ldadd)
+gzip_SOURCES = $(base_gzip_sources) $(thread_gzip_sources) $(zopfli_gzip_sources) $(zlib_gzip_sources)
+AM_CPPFLAGS = -I$(top_srcdir)/lib $(gzip_zlib_cppflags)
 AM_CFLAGS = $(WARN_CFLAGS) $(WERROR_CFLAGS)
 # Tell the linker to omit references to unused shared libraries.
 AM_LDFLAGS = $(IGNORE_UNUSED_LIBRARIES_CFLAGS)
 
 
-pigz_extra_dist = \
+gzip_extra_dist = \
 	     src/util.c \
 	     m4/gnulib-cache.m4 \
 	     AUTHORS \
 	     ChangeLog \
 	     COPYING \
 	     NEWS \
-	    #  pigz.pdf \
-	    #  pigz.spec \
+	    #  gzip.pdf \
+	    #  gzip.spec \
 	     README \
 	     README-hacking
 if STATIC_ZLIB
@@ -108,7 +108,7 @@ zopfli_extra_dist = \
 	lib/zopfli/COPYING
 endif
 
-EXTRA_DIST = $(pigz_extra_dist) $(zlib_extra_dist) $(zopfli_extra_dist)
+EXTRA_DIST = $(gzip_extra_dist) $(zlib_extra_dist) $(zopfli_extra_dist)
 dist_doc_DATA = README
 clean-local:
 	-git submodule foreach git clean -dfx

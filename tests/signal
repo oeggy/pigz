@@ -3,7 +3,7 @@
 
 . "${srcdir=.}/init.sh"; path_prepend_ ..
 
-gzip="pigz"
+gzip="gzip"
 pid=''
 fail=0
 filename="signal-segv"

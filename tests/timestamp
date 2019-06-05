@@ -19,7 +19,7 @@
 
 . "${srcdir=.}/init.sh"; path_prepend_ ..
 
-gzip="pigz"
+gzip="gzip"
 
 TZ=UTC0
 export TZ

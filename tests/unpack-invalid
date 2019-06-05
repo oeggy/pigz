@@ -20,7 +20,7 @@
 
 . "${srcdir=.}/init.sh"; path_prepend_ ..
 
-gzip="pigz"
+gzip="gzip"
 
 fail=0
 for input in \

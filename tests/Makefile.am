@@ -43,7 +43,7 @@ EXTRA_DIST =				\
   backcomp-segv.gz
 
 built_programs = \
-  pigz
+  gzip
 
 TESTS_ENVIRONMENT =					\
   tmp__=$$TMPDIR; test -d "$$tmp__" || tmp__=.;		\

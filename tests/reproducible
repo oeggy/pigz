@@ -19,7 +19,7 @@
 
 . "${srcdir=.}/init.sh"; path_prepend_ ..
 
-gzip="pigz"
+gzip="gzip"
 
 echo a | ${gzip} > exp || fail=1
 sleep 1

@@ -20,7 +20,7 @@
 
 . "${srcdir=.}/init.sh"; path_prepend_ ..
 
-gzip="pigz"
+gzip="gzip"
 
 # The input must be larger than 32KiB and slightly
 # less uniform than e.g., all zeros.

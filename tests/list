@@ -19,7 +19,7 @@
 
 . "${srcdir=.}/init.sh"; path_prepend_ ..
 
-gzip="pigz"
+gzip="gzip"
 
 echo zoology zucchini > in || framework_failure_
 cp in orig || framework_failure_

@@ -19,7 +19,7 @@
 
 . "${srcdir=.}/init.sh"; path_prepend_ ..
 
-gzip="pigz"
+gzip="gzip"
 
 printf '...: corrupted -- invalid deflate data (invalid code lengths set)\n' > exp \
   || framework_failure_

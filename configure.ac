@@ -1,6 +1,6 @@
 AC_PREREQ([2.65])
-AC_INIT([pigz], m4_esyscmd_s([build-aux/git-version-gen .tarball-version]))
-AC_CONFIG_SRCDIR(src/pigz.c)
+AC_INIT([gzip], m4_esyscmd_s([build-aux/git-version-gen .tarball-version]))
+AC_CONFIG_SRCDIR(src/gzip.c)
 AC_CONFIG_LIBOBJ_DIR([lib])
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -9,7 +9,7 @@ AH_TEMPLATE([NOTHREAD],
 AH_TEMPLATE([NOZOPFLI],
 	    [Disable support for Google zopfli, a very effective but very
 	     slow compression algorithm.])
-AH_TEMPLATE([PIGZ_DEBUG],
+AH_TEMPLATE([GZIP_DEBUG],
 	    [Advanced debugging info such as memory use and very detailed logging.])
 AH_TEMPLATE([_FORTIFY_SOURCE],
 	    [Enable glibc source fortification (gcc only).])
@@ -35,7 +35,7 @@ AC_ARG_ENABLE([advanced-debug],
 		[Enable advanced verbose debugging. (Implies --enable-gcc-warnings)])],
 	[AS_IF([test "x$enable_advanced_debug" != "xno"],
 	       enable_gcc_warnings="yes"
-	       AC_DEFINE([PIGZ_DEBUG]))])
+	       AC_DEFINE([GZIP_DEBUG]))])
 AC_ARG_WITH([static-zlib],
 	[AS_HELP_STRING([--with-static-zlib],
 		[Use static zlib instead of trying to dynamically link to system zlib. (default no, yes when cross-compiling)])],

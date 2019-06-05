@@ -6,7 +6,7 @@
 
 . "${srcdir=.}/init.sh"; path_prepend_ ..
 
-gzip="pigz"
+gzip="gzip"
 cver="$(${gzip} --version | head -1 | cut -d " " -f2)"
 rver="1.10"
 fail=0

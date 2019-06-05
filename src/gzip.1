@@ -1,9 +1,9 @@
-.TH PIGZ 1 "December 26, 2017"
+.TH GZIP 1 "December 26, 2017"
 .SH NAME
-pigz, unpigz \- compress or expand files
+gzip, ungzip \- compress or expand files
 .SH SYNOPSIS
 .ll +8
-.B pigz
+.B gzip
 .RB [ " \-cdfhikKlLmMnNqrRtz0..9,11 " ]
 [
 .B -b
@@ -22,7 +22,7 @@ pigz, unpigz \- compress or expand files
 ]
 .ll -8
 .br
-.B unpigz
+.B ungzip
 .RB [ " \-cfhikKlLmMnNqrRtz " ]
 [
 .B -b
@@ -40,7 +40,7 @@ pigz, unpigz \- compress or expand files
 .I "name \&..."
 ]
 .SH DESCRIPTION
-.I Pigz
+.I Gzip
 compresses using threads to make use of multiple processors and cores.
 The input is broken up into 128 KB chunks with each compressed in parallel.
 The individual check value for each chunk is also calculated in parallel.
@@ -83,7 +83,7 @@ each with the nine-byte sequence (in hex): 00 00 FF FF 00 00 00 FF FF.
 .PP
 Decompression can't be parallelized, at least not without specially prepared
 deflate streams for that purpose.  As a result,
-.I pigz
+.I gzip
 uses a single thread
 (the main thread) for decompression, but will create three other threads for
 reading, writing, and check calculation, which can speed up decompression
@@ -100,9 +100,9 @@ If no names are provided on the command line, or if "-" is given as a name (but
 not after "--"), then the input is taken from stdin.
 .PP
 Compressed files can be restored to their original form using
-.I pigz -d
+.I gzip -d
 or
-.I unpigz.
+.I ungzip.
 
 .SH OPTIONS
 .TP
@@ -159,7 +159,7 @@ List the contents of the compressed input.
 .TP
 .B -L --license
 Display the
-.I pigz
+.I gzip
 license and quit.
 .TP
 .B -m --no-time
@@ -208,7 +208,7 @@ Test the integrity of the compressed input.
 Provide more verbose output.
 .TP
 .B -V --version
-Show the version of pigz. -vV also shows the zlib version.
+Show the version of gzip. -vV also shows the zlib version.
 .TP
 .B -z --zlib
 Compress to zlib (.zz) instead of gzip format.
