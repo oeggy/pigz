@@ -2285,22 +2285,26 @@ compressed_suffix (char *nm)
       nm += len - 4;
       len = 4;
       if (strcmp (nm, ".zip") == 0 || strcmp (nm, ".ZIP") == 0 ||
-          strcmp (nm, ".tgz") == 0)
+          strcmp (nm, ".tgz") == 0 || strcmp (nm, ".TGZ") == 0 ||
+          strcmp (nm, ".taz") == 0 || strcmp (nm, ".TAZ") == 0 )
         return 4;
     }
   if (len > 3)
     {
       nm += len - 3;
       len = 3;
-      if (strcmp (nm, ".gz") == 0 || strcmp (nm, "-gz") == 0 ||
-          strcmp (nm, ".zz") == 0 || strcmp (nm, "-zz") == 0)
+      if (strcmp (nm, ".gz") == 0 || strcmp (nm, ".GZ") == 0 ||
+          strcmp (nm, "-gz") == 0 || strcmp (nm, "-GZ") == 0 ||
+          strcmp (nm, ".zz") == 0 || strcmp (nm, ".ZZ") == 0 ||
+          strcmp (nm, "-zz") == 0 || strcmp (nm, "-ZZ") == 0 )
         return 3;
     }
   if (len > 2)
     {
       nm += len - 2;
-      if (strcmp (nm, ".z") == 0 || strcmp (nm, "-z") == 0 ||
-          strcmp (nm, "_z") == 0 || strcmp (nm, ".Z") == 0)
+      if (strcmp (nm, ".z") == 0 || strcmp (nm, ".Z") == 0 ||
+          strcmp (nm, "-z") == 0 || strcmp (nm, "-Z") == 0 ||
+          strcmp (nm, "_z") == 0 || strcmp (nm, "_Z") == 0 )
         return 2;
     }
 
@@ -2337,7 +2341,11 @@ show_info (int method, unsigned long check, length_t len, int cont)
     {
       n = strnlen (g.inf, g.inz) - compressed_suffix (g.inf);
       strncpy (tag, g.inf, n > max + 1 ? max + 1 : n);
-      if (strcmp (g.inf + n, ".tgz") == 0 && n < max + 1)
+      if ( ( strcmp (g.inf + n, ".tgz") == 0 ||
+             strcmp (g.inf + n, ".TGZ") == 0 ||
+             strcmp (g.inf + n, ".taz") == 0 ||
+             strcmp (g.inf + n, ".TAZ") == 0 )
+           && n < max + 1)
         strncpy (tag + n, ".tar", max + 1 - n);
     }
   else
@@ -3248,7 +3256,7 @@ process (char *path)
   ball_t err;                   /* error information from throw() */
   /* All compressed suffixes for decoding search, in length order. */
   static const char *sufs[] = { NULL, ".z", "-z", "_z", ".Z", ".gz", "-gz", 
-    ".zz", "-zz", ".zip", ".ZIP", ".tgz", NULL, NULL
+    ".zz", "-zz", ".zip", ".ZIP", ".tgz", ".taz", NULL, NULL
   };
 
   char const **sfix;
@@ -3507,7 +3515,10 @@ process (char *path)
               len = strlen (to);
             }
           /* For -d or -dNn, replace abbreviated suffixes. */
-          else if (strcmp (to + len, ".tgz") == 0)
+          else if (strcmp (to + len, ".tgz") == 0 ||
+                   strcmp (to + len, ".TGZ") == 0 ||
+                   strcmp (to + len, ".taz") == 0 ||
+                   strcmp (to + len, ".TAZ") == 0 )
             sufx = ".tar";
         }
       else
@@ -3751,7 +3762,7 @@ defaults (void)
   g.rsync = 0;                  /* don't do rsync blocking */
   g.setdict = 1;                /* initialize dictionary each thread */
   g.verbosity = 1;              /* normal message level */
-  g.headis = 0;                 /* store name and time (low bits == 11), */
+  g.headis = 0;                 /* dont store name/time for reproducibility */
  /* Restore neither (next bits == 00), where 01 is name and 10 is time. */
   g.pipeout = 0;                /* don't force output to stdout */
   g.sufx = ".gz";               /* compressed file suffix */
@@ -3809,6 +3820,49 @@ cut_yarn (int err)
 }
 #endif
 
+static char const short_options[]
+  = ":b:cdfFhiI:j:J:klLmMnNqrRS:tvVYz0123456789";
+static struct option const long_options[] =
+  {
+    { "fast",        0, 0, '1' },
+    { "best",        0, 0, '9' },
+    /* {"ascii",    0, 0, 'a}, */
+    { "blocksize",   1, 0, 'b' },
+    { "stdout",      0, 0, 'c' },
+    { "to-stdout",   0, 0, 'c' },
+    { "decompress",  0, 0, 'd' },
+    { "uncompress",  0, 0, 'd' },
+    { "force",       0, 0, 'f' },
+    { "first",       0, 0, 'F' },
+    { "help",        0, 0, 'h' },
+    { "independent", 0, 0, 'i' },
+    { "iterations",  1, 0, 'I' },
+    { "jobs",        1, 0, 'j' },
+    { "maxsplits",   1, 0, 'J' },
+    { "keep",        0, 0, 'k' },
+    { "list",        0, 0, 'l' },
+    { "license",     0, 0, 'L' },
+    { "no-time",     0, 0, 'm' },
+    { "time",        0, 0, 'M' },
+    { "no-name",     0, 0, 'n' },
+    { "name",        0, 0, 'N' },
+    { "oneblock",    0, 0, 'O' },
+    /* See gzip about the following option
+    {"-presume-input-tty", no_argument, NULL,
+     PRESUME_INPUT_TTY_OPTION}, */
+    { "quiet",       0, 0, 'q' },
+    { "recursive",   0, 0, 'r' },
+    { "rsyncable",   0, 0, 'R' },
+    { "suffix",      1, 0, 'S' },
+    { "test",        0, 0, 't' },
+    { "verbose",     0, 0, 'v' },
+    { "version",     0, 0, 'V' },
+    { "synchronous", 0, 0, 'Y' },
+    { "zlib",        0, 0, 'z' },
+    /* { "LZW",        0, 0, 'Z' }, */
+    { NULL, 0, 0, 0 }
+  };
+
 /* Process command line arguments. */
 int
 main (int argc, char **argv)
@@ -3820,50 +3874,7 @@ main (int argc, char **argv)
   size_t k;                     /* program name length */
   char *p;                      /* environment default options, marker */
   ball_t err;                   /* error information from throw() */
-
   g.ret = 0;                    /* return code */
-
-  /* Move these after testing. */
-  static char const short_options[] 
-    = ":b:cC:dfFhiI:j:J:klLmMnNqrRS:tvVYz0123456789";
-  static struct option const long_options[] =
-    {
-      { "fast",        0, 0, '1' },
-      { "best",        0, 0, '9' },
-      /* {"ascii",    0, 0, 'a}, */
-      { "blocksize",   1, 0, 'b' },
-      { "stdout",      0, 0, 'c' },
-      { "to-stdout",   0, 0, 'c' },
-      { "complevel",   1, 0, 'C' },
-      { "decompress",  0, 0, 'd' },
-      { "uncompress",  0, 0, 'd' },
-      { "force",       0, 0, 'f' },
-      { "first",       0, 0, 'F' },
-      { "help",        0, 0, 'h' },
-      { "independent", 0, 0, 'i' },
-      { "iterations",  1, 0, 'I' },
-      { "jobs",        1, 0, 'j' },
-      { "maxsplits",   1, 0, 'J' },
-      { "keep",        0, 0, 'k' },
-      { "list",        0, 0, 'l' },
-      { "license",     0, 0, 'L' },
-      { "no-time",     0, 0, 'm' },
-      { "time",        0, 0, 'M' },
-      { "no-name",     0, 0, 'n' },
-      { "name",        0, 0, 'N' },
-      { "oneblock",    0, 0, 'O' },
-      { "quiet",       0, 0, 'q' },
-      { "recursive",   0, 0, 'r' },
-      { "rsyncable",   0, 0, 'R' },
-      { "suffix",      1, 0, 'S' },
-      { "test",        0, 0, 't' },
-      { "verbose",     0, 0, 'v' },
-      { "version",     0, 0, 'V' },
-      { "synchronous", 0, 0, 'Y' },
-      { "zlib",        0, 0, 'z' },
-      /* { "LZW",        0, 0, 'Z' }, */
-      { NULL, 0, 0, 0 }
-    };
 
 
   try
@@ -3874,11 +3885,11 @@ main (int argc, char **argv)
 #ifndef NOTHREAD
       g.in_which = -1;
 #endif
-      g.alias = "-"; /* !!! new in develop pigz version !!! */
+      g.alias = "-";
       g.outf = NULL; 
       g.first = 1;
       g.hname = NULL;
-      g.hcomm = NULL; /* !!! new in develop pigz version !!! */
+      g.hcomm = NULL;
 
       /* Save pointer to program name for error messages. */
       p = strrchr (argv[0], '/');
@@ -3900,7 +3911,7 @@ main (int argc, char **argv)
       defaults ();
 
       /* Create CRC table, in case zlib compiled with dynamic tables. */
-      get_crc_table ();  /* !!! new in develop pigz version !!! */
+      get_crc_table ();  
 
       /* TODO: CHANGE TO ungzip rather than unpigz later on
        * ENSURE WE ACCEPT zcat, pcat, gcat, and gzcat 
