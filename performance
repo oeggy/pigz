@@ -1,0 +1,25 @@
+#! /bin/sh
+# Test performance of gzip and pigz
+
+gzip="gzip"
+gzippier="./pigz"
+filename="1GB.txt"
+fail=0
+
+echo "Performance Comparison"
+
+echo "Create a random 1GB file"
+head -c 1073741824 </dev/urandom >${filename}
+cp ${filename} "${filename}1"
+cp ${filename} "${filename}2"
+
+echo "old gzip compressing 1GB file"
+time -f "\t%E real" ${gzip} "${filename}1"
+rm "${filename}1.gz"
+echo "new gzip compressing 1GB file"
+time -f "\t%E real" ${gzippier} "${filename}2"
+rm "${filename}2.gz"
+# cleanup
+rm ${filename}
+
+exit ${fail}

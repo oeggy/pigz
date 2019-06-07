@@ -1,7 +1,6 @@
 #! /bin/sh
 # Test signal handling for the gzip
 
-gzip="gzip"
 pid=''
 fail=0
 filename="signal-segv"

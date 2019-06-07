@@ -6,7 +6,6 @@
 
 . "${srcdir=.}/init.sh"; path_prepend_ ..
 
-gzip="pigz"
 fail=0
 cver=$(env ${gzip} --version | sed -n '1s/.* //p;q')
 rver="1.10"

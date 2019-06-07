@@ -19,8 +19,6 @@
 
 . "${srcdir=.}/init.sh"; path_prepend_ ..
 
-gzip="pigz"
-
 printf banana >exp || framework_failure_
 hex_printf_ '\x1f\x1e\x00\x00\x00\x06\x03\x01\x01\x00\x61\x6e\x62\x16\xc8' \
   > test.z || framework_failure_

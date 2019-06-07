@@ -20,8 +20,6 @@
 
 . "${srcdir=.}/init.sh"; path_prepend_ ..
 
-gzip="pigz"
-
 printf 'xxx\nyyy\n'      > exp2 || framework_failure_
 printf 'aaa\nbbb\nccc\n' > exp3 || framework_failure_
 

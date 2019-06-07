@@ -19,8 +19,6 @@
 
 . "${srcdir=.}/init.sh"; path_prepend_ ..
 
-gzip="pigz"
-
 TZ=UTC0
 export TZ
 oldIFS=$IFS

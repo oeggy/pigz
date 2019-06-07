@@ -20,8 +20,6 @@
 
 . "${srcdir=.}/init.sh"; path_prepend_ ..
 
-gzip="pigz"
-
 # Use a suffix of "T":
 :|${gzip} > kT || framework_failure_
 

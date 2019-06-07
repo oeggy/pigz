@@ -45,6 +45,8 @@ EXTRA_DIST =				\
 built_programs = \
   pigz
 
+gzip = pigz
+
 TESTS_ENVIRONMENT =					\
   tmp__=$$TMPDIR; test -d "$$tmp__" || tmp__=.;		\
   TMPDIR=$$tmp__; export TMPDIR;			\
@@ -72,6 +74,7 @@ TESTS_ENVIRONMENT =					\
   abs_top_srcdir='$(abs_top_srcdir)'			\
   abs_srcdir='$(abs_srcdir)'				\
   built_programs='$(built_programs)'			\
+  gzip='$(gzip)'			\
   srcdir='$(srcdir)'					\
   top_srcdir='$(top_srcdir)'				\
   CC='$(CC)'						\

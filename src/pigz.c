@@ -2284,27 +2284,27 @@ compressed_suffix (char *nm)
     {
       nm += len - 4;
       len = 4;
-      if (strcmp (nm, ".zip") == 0 || strcmp (nm, ".ZIP") == 0 ||
-          strcmp (nm, ".tgz") == 0 || strcmp (nm, ".TGZ") == 0 ||
-          strcmp (nm, ".taz") == 0 || strcmp (nm, ".TAZ") == 0 )
+      if (strcasecmp (nm, ".zip") == 0 ||
+          strcasecmp (nm, ".tgz") == 0 ||
+          strcasecmp (nm, ".taz") == 0)
         return 4;
     }
   if (len > 3)
     {
       nm += len - 3;
       len = 3;
-      if (strcmp (nm, ".gz") == 0 || strcmp (nm, ".GZ") == 0 ||
-          strcmp (nm, "-gz") == 0 || strcmp (nm, "-GZ") == 0 ||
-          strcmp (nm, ".zz") == 0 || strcmp (nm, ".ZZ") == 0 ||
-          strcmp (nm, "-zz") == 0 || strcmp (nm, "-ZZ") == 0 )
+      if (strcasecmp (nm, ".gz") == 0 ||
+          strcasecmp (nm, "-gz") == 0 ||
+          strcasecmp (nm, ".zz") == 0 ||
+          strcasecmp (nm, "-zz") == 0)
         return 3;
     }
   if (len > 2)
     {
       nm += len - 2;
-      if (strcmp (nm, ".z") == 0 || strcmp (nm, ".Z") == 0 ||
-          strcmp (nm, "-z") == 0 || strcmp (nm, "-Z") == 0 ||
-          strcmp (nm, "_z") == 0 || strcmp (nm, "_Z") == 0 )
+      if (strcasecmp (nm, ".z") == 0 ||
+          strcasecmp (nm, "-z") == 0 ||
+          strcasecmp (nm, "_z") == 0)
         return 2;
     }
 
@@ -2341,10 +2341,8 @@ show_info (int method, unsigned long check, length_t len, int cont)
     {
       n = strnlen (g.inf, g.inz) - compressed_suffix (g.inf);
       strncpy (tag, g.inf, n > max + 1 ? max + 1 : n);
-      if ( ( strcmp (g.inf + n, ".tgz") == 0 ||
-             strcmp (g.inf + n, ".TGZ") == 0 ||
-             strcmp (g.inf + n, ".taz") == 0 ||
-             strcmp (g.inf + n, ".TAZ") == 0 )
+      if ( ( strcasecmp (g.inf + n, ".tgz") == 0 ||
+             strcasecmp (g.inf + n, ".taz") == 0 )
            && n < max + 1)
         strncpy (tag + n, ".tar", max + 1 - n);
     }
@@ -3515,10 +3513,8 @@ process (char *path)
               len = strlen (to);
             }
           /* For -d or -dNn, replace abbreviated suffixes. */
-          else if (strcmp (to + len, ".tgz") == 0 ||
-                   strcmp (to + len, ".TGZ") == 0 ||
-                   strcmp (to + len, ".taz") == 0 ||
-                   strcmp (to + len, ".TAZ") == 0 )
+          else if (strcasecmp (to + len, ".tgz") == 0 ||
+                   strcasecmp (to + len, ".taz") == 0)
             sufx = ".tar";
         }
       else
@@ -3708,7 +3704,8 @@ help (void)
     return;
   for (n = 0; n < (int) (sizeof (helptext) / sizeof (char *)); n++)
     fprintf (stdout, "%s\n", helptext[n]);
-  fflush (stdout);
+  if (fclose (stdout) != 0)
+    exit(1);
   exit (0);
 }
 
@@ -4011,6 +4008,8 @@ main (int argc, char **argv)
                        fprintf (stdout, "Copyright (C) 2007-2017 Mark Adler\n");
                        fprintf (stdout, "Subject to the terms of the zlib license.\n");
                        fprintf (stdout, "No warranty is provided or implied.\n");
+                       if (fclose (stdout) != 0)
+                         exit(1);
                        exit (0); break;
             case 'm':  g.headis &= ~0xa;  break;
             case 'M':  g.headis |= 0xa;  break;
@@ -4037,6 +4036,8 @@ main (int argc, char **argv)
             case 'V':  fprintf (stdout, "%s %s\n", g.prog, VERSION);
                        if (g.verbosity > 1)
                          fprintf (stdout, "zlib %s\n", zlibVersion());
+                       if (fclose (stdout) != 0)
+                         exit(1);
                        exit (0);
                        break;
             case 'Y':  g.sync = 1;  break; /* Synchronous option, not in pdf 
