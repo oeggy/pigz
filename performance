@@ -3,23 +3,24 @@
 
 gzip="gzip"
 gzippier="./pigz"
-filename="1GB.txt"
-fail=0
+file1="random1.bin"
+file2="random2.bin"
+file3="random3.bin"
 
 echo "Performance Comparison"
 
 echo "Create a random 1GB file"
-head -c 1073741824 </dev/urandom >${filename}
-cp ${filename} "${filename}1"
-cp ${filename} "${filename}2"
+head -c 1073741824 </dev/urandom >${file1}
+cp ${file1} ${file2}
+cp ${file1} ${file3}
 
 echo "old gzip compressing 1GB file"
-time -f "\t%E real" ${gzip} "${filename}1"
-rm "${filename}1.gz"
+time -f "\t%E real" ${gzip} ${file2}
+${gzip} -d "${file2}.gz"
 echo "new gzip compressing 1GB file"
-time -f "\t%E real" ${gzippier} "${filename}2"
-rm "${filename}2.gz"
-# cleanup
-rm ${filename}
+time -f "\t%E real" ${gzippier} ${file3}
+${gzippier} -d "${file3}.gz"
 
-exit ${fail}
+diff ${file2} ${file3}
+# cleanup
+rm ${file1} ${file2} ${file3}

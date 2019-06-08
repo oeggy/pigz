@@ -331,8 +331,8 @@
 #include <stdlib.h>     /* exit(), malloc(), free(), realloc(), atol(), 
                          * atoi(), getenv() */
 #include <stdarg.h>     /* va_start(), va_arg(), va_end(), va_list */
-#include <string.h>     /* memset(), memchr(), memcpy(), strcmp(), strcpy(),
-                         * strncpy(), strlen(), strcat(), strrchr(),
+#include <string.h>     /* memset(), memchr(), memcpy(), strcmp(), strcasecmp(),
+                         * strcpy(), strncpy(), strlen(), strcat(), strrchr(),
                          * strerror() 
                          */
 #include <errno.h>      /* errno, EEXIST */
@@ -3068,7 +3068,7 @@ unlzw (void)
       if (code == 256 && flags)
         {
           /* Flush unused input bits and bytes to next 8*bits bit boundary. */
-          {
+          /* {
             unsigned rem = ((g.in_tot - g.in_left) - mark) % bits;
             if (rem)
               {
@@ -3082,7 +3082,7 @@ unlzw (void)
                 g.in_left -= rem;
                 g.in_next += rem;
               }
-          }
+          } */
           buf = 0;
           left = 0;
 
@@ -3198,6 +3198,7 @@ copymeta (char *from, char *to)
   times[0].tv_usec = 0;
   times[1].tv_sec = st.st_mtime;
   times[1].tv_usec = 0;
+
   (void) utimes (to, times);
 }
 
@@ -3331,6 +3332,13 @@ process (char *path)
             }
           len = strnlen (g.inf, g.inz);
         }
+
+      if (st.st_mtime > UINT_MAX || st.st_mtime <= 0) {
+        complain ("%s: MTIME %ld out of range for this platform", 
+                  g.inf, st.st_mtime);
+        g.ret = 2;
+        return;
+      }
 
       /* Only process regular files or named pipes, but allow symbolic links
        * if -f, recurse into directory if -r. 
@@ -3931,11 +3939,11 @@ main (int argc, char **argv)
           g.pipeout = 1;
         }
 
-    /* Error if user has environment variables  */
-    /* This could affect people when they update, so ask eggert */
-    if (getenv ("GZIP") != NULL)
+      /* Error if user has environment variables  */
+      /* This could affect people when they update, so ask eggert */
+      if (getenv ("GZIP") != NULL)
         throw (EINVAL, "Environment variable support removed in"
-                      "gzip version x.\nRun `unset GZIP' to fix.");
+                       "gzip version x.\nRun `unset GZIP' to fix.");
 
       /* If no arguments and compressed data to/from terminal, show help. */
       if (argc < 2 && isatty (g.decode ? 0 : 1))
