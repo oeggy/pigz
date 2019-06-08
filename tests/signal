@@ -5,9 +5,10 @@ pid=''
 fail=0
 filename="signal-segv"
 
-. "${srcdir=.}/init.sh"; path_prepend_ ..
+mkdir gt-signal
+cd gt-signal
 
-head -c 2000000 </dev/urandom >${filename}
+head -c 1000000 </dev/urandom >${filename}
 
 for sig in \
     INT \
@@ -20,14 +21,14 @@ do
   cp ${filename} "${filename}-${sig}" || fail=1
   ${gzip} "${filename}-${sig}" &
   pid=$!
-  test -n ${pid} || fail=1
   kill -${sig} ${pid} || fail=1
   test -f "${filename}-${sig}" || fail=1
   test -f "${filename}-${sig}.gz" && fail=1
   diff ${filename} "${filename}-${sig}" || fail=1
-  rm -f "${filename}-${sig}"
 done
 
-rm -f ${filename}
+cd ..
+chmod -R u+rwx gt-signal
+rm -rf gt-signal
 
-Exit ${fail}
+exit ${fail}
