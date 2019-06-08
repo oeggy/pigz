@@ -4,12 +4,16 @@
 pid=''
 fail=0
 filename="signal-segv"
+gzip="./pigz"
+
+test -x ${gzip} && exit 1
 
 mkdir gt-signal
 cd gt-signal
 
-head -c 1000000 </dev/urandom >${filename}
+head -c 2000000 </dev/urandom >${filename}
 
+set -x
 for sig in \
     INT \
     HUP \

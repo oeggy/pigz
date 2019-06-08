@@ -27,8 +27,7 @@ TESTS =					\
   stdin					\
   timestamp				\
   trailing-nul				\
-  unpack-invalid			\
-  unpack-valid				\
+  unpack				\
   upper-suffix				\
   z-suffix				\
   backcomp				\
