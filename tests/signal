@@ -9,7 +9,6 @@ filename="signal-segv"
 
 head -c 2000000 </dev/urandom >${filename}
 
-set -x
 for sig in \
     INT \
     HUP \
