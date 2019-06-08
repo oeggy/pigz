@@ -7,24 +7,26 @@ filename="signal-segv"
 
 . "${srcdir=.}/init.sh"; path_prepend_ ..
 
-head -c 20971520 </dev/urandom >${filename}
+head -c 2000000 </dev/urandom >${filename}
 
-for sig in 1 2 13 15 24 25
+set -x
+for sig in \
+    INT \
+    HUP \
+    PIPE \
+    TERM \
+    XCPU \
+    XFSZ
 do
-  cp ${filename} "${filename}${sig}" || fail=1
-done
-
-for sig in 1 2 13 15 24 25
-do
-  ${gzip} "${filename}${sig}" &
+  cp ${filename} "${filename}-${sig}" || fail=1
+  ${gzip} "${filename}-${sig}" &
   pid=$!
   test -n ${pid} || fail=1
   kill -${sig} ${pid} || fail=1
-  test -f "${filename}${sig}" || fail=1
-  test -f "${filename}${sig}.gz" && fail=1
-  pgrep ${gzip} && fail=1
-  diff ${filename} "${filename}${sig}" || fail=1
-  rm -f "${filename}${sig}"
+  test -f "${filename}-${sig}" || fail=1
+  test -f "${filename}-${sig}.gz" && fail=1
+  diff ${filename} "${filename}-${sig}" || fail=1
+  rm -f "${filename}-${sig}"
 done
 
 rm -f ${filename}

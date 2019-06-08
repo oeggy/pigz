@@ -3906,6 +3906,22 @@ main (int argc, char **argv)
 
       /* Prepare for interrupts and logging. */
       signal (SIGINT, cut_short);
+#ifdef SIGHUP
+      signal (SIGHUP, cut_short);
+#endif
+#if SIGPIPE
+      signal (SIGPIPE, cut_short);
+#endif
+#ifdef SIGTERM
+      signal (SIGTERM, cut_short);
+#endif
+#ifdef SIGXCPU
+      signal (SIGXCPU, cut_short);
+#endif
+#ifdef SIGXFSZ
+      signal (SIGXFSZ, cut_short);
+#endif
+
 #ifndef NOTHREAD
       yarn_prefix = g.prog;       /* prefix for yarn error messages */
       yarn_abort = cut_yarn;      /* call on thread error */
