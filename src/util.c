@@ -1,4 +1,4 @@
-/* util.c -- utilities for pigz support
+/* util.c -- utilities for gzip support, based on pigz
  * Copyright (C) 2007-2017 Mark Adler
  * Version 2.4.1x  xx Dec 2017  Mark Adler
  */
@@ -158,8 +158,8 @@ typedef unsigned long crc_t;
 /* Globals (modified by main thread only when it's the only thread). */
 static  struct
 {
-  int volatile ret;         /* pigz return code */
-  const char *prog;         /* name by which pigz was invoked */
+  int volatile ret;         /* gzip return code */
+  const char *prog;         /* name by which gzip was invoked */
   int ind;                  /* input file descriptor */
   int outd;                 /* output file descriptor */
   char *inf;                /* input file name (allocated) */

@@ -1,3 +1,8 @@
+gzip xxx (June 2019) parallelized based on Mark Adler's pigz
+By: Omid Eghbali, Analisse Reyes, Hengda Shi, Maria Neptune, Siddhartha Bose
+
+Adopted from: 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 pigz 2.4.1x (xx Dec 2017) by Mark Adler
 
 pigz, which stands for Parallel Implementation of GZip, is a fully functional
@@ -8,22 +13,6 @@ pigz was written by Mark Adler and does not include third-party code. I am
 making my contributions to and distributions of this project solely in my
 personal capacity, and am not conveying any rights to any intellectual property
 of any third parties.
-
-This version of pigz is written to be portable across Unix-style operating
-systems that provide the zlib and pthread libraries.
-
-Type "make" in this directory to build the "pigz" executable.  You can then
-install the executable wherever you like in your path (e.g. /usr/local/bin/).
-Type "pigz" to see the command help and all of the command options.
-
-The latest version of pigz can be found at http://zlib.net/pigz/ .  You need
-zlib version 1.2.3 or later to compile pigz.  zlib version 1.2.6 or later is
-recommended, which reduces the overhead between blocks.  You can find the
-latest version of zlib at http://zlib.net/ .  You can look in pigz.c for the
-change history.
-
-Questions, comments, bug reports, fixes, etc. can be emailed to Mark at his
-address in the license below.
 
 The license from pigz.c is copied here:
 
@@ -45,3 +34,21 @@ The license from pigz.c is copied here:
 
   Mark Adler
   madler@alumni.caltech.edu
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Use information:
+
+Building:
+	./bootstrap
+	./configure
+	make
+Running Testcases:
+	make check
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+High level Overview of Additions:
+	~Revamped Optional Handling
+	~Improved option functionality with respect to the current verson of gzip
+	~Error messages with respect to options made same as gzip
+	~GNU Build system
+	~Testcases taken from gzip 
+	~Additional testcases for backcompatibility with gzip and signaling
+	~Code gnuification

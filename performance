@@ -2,7 +2,7 @@
 # Test performance of gzip and pigz
 
 gzip="gzip"
-gzippier="./pigz"
+gzippier="./gzip"
 file1="random1.bin"
 file2="random2.bin"
 file3="random3.bin"

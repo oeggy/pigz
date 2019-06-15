@@ -4,7 +4,7 @@
 pid=''
 fail=0
 filename="signal-segv"
-gzip="./pigz"
+gzip="./gzip"
 
 test -x ${gzip} && exit 1
 
