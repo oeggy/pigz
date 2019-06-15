@@ -1,10 +1,10 @@
 /build-aux
 *.o
-/pigz
-/unpigz
-/pigzj
-/pigzt
-/pigzn
+/gzip
+/ungzip
+/gzipj
+/gzipt
+/gzipn
 Makefile.in
 Makefile
 aclocal.m4
@@ -23,7 +23,7 @@ build-aux
 autom4te.cache/
 m4/
 lib/.gitignore
-lib/libpigz.a
+lib/libgzip.a
 *.tar.gz
 tags
 lib/dummy.c
